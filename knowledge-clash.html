@@ -3,323 +3,687 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASTRO League 2026 - Knowledge Clash</title>
+    <title>Knowledge Clash 2026 - Clean Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #030613;
-            background-image: radial-gradient(circle at top, #0a173b 0%, #030613 100%);
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        :root {
+            /* Clean SaaS Color Palette */
+            --bg-main: #FFFFFF;
+            --bg-subtle: #F9FAFB;
+            --bg-gray: #F3F4F6;
+            --text-dark: #111827;
+            --text-muted: #6B7280;
+            --black: #000000;
+            --border-light: #E5E7EB;
+            --success-green: #10B981;
+            --danger-red: #EF4444;
         }
 
-        /* Top Bar: Event Branding & Timer */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 40px 80px;
-            background: rgba(10, 23, 59, 0.8);
-            border-bottom: 2px solid #00d2ff;
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        .hidden { display: none !important; }
+        
+        body, html {
+            width: 100vw; height: 100vh; background-color: var(--bg-main); color: var(--text-dark);
+            overflow: hidden; display: flex; flex-direction: column;
         }
 
-        .branding h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: #00d2ff;
+        /* ---------------------------------------------------
+           ROLE SELECTION SCREEN
+           --------------------------------------------------- */
+        #role-selection {
+            width: 100vw; height: 100vh; background: var(--bg-subtle); color: var(--text-dark);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2rem;
         }
-
-        .branding h2 {
-            margin: 5px 0 0 0;
-            font-size: 1.5rem;
-            color: #ff6b00;
-            letter-spacing: 2px;
+        #role-selection h1 { font-size: 4rem; font-weight: 900; letter-spacing: -1px; }
+        .role-btn {
+            padding: 1.5rem 3rem; font-size: 1.5rem; font-weight: 700; border-radius: 12px; cursor: pointer;
+            border: 1px solid var(--border-light); transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+        .btn-aud { background: var(--black); color: white; }
+        .btn-host { background: var(--bg-main); color: var(--text-dark); }
+        .role-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
 
-        .timer-box {
-            font-size: 5rem;
-            font-weight: 900;
-            color: #00ff66;
-            text-shadow: 0 0 20px rgba(0, 255, 102, 0.5);
-            font-variant-numeric: tabular-nums;
+        /* ---------------------------------------------------
+           AUDIENCE VIEW STYLES
+           --------------------------------------------------- */
+        #audience-view { width: 100vw; height: 100vh; background-color: var(--bg-main); display: flex; flex-direction: column; }
+        
+        /* Sleek Timer Bar */
+        #timer-bar-container { width: 100%; height: 0.8vh; background-color: var(--bg-gray); position: fixed; top: 0; left: 0; z-index: 100; }
+        #timer-bar { height: 100%; width: 100%; background-color: var(--black); transition: width 1s linear, background-color 0.5s ease; }
+        
+        /* Minimalist Header */
+        header {
+            background-color: var(--bg-main); padding: 2vh 4vw; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); margin-top: 0.8vh; flex-shrink: 0;
         }
+        header h1 { font-size: 3vh; font-weight: 800; letter-spacing: -1px; }
+        .round-info { font-size: 1.8vh; font-weight: 600; background: var(--bg-gray); color: var(--text-muted); padding: 0.8vh 2vw; border-radius: 50px; border: 1px solid var(--border-light); }
 
-        .timer-box.warning {
-            color: #ff0000;
-            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            animation: pulse 1s infinite;
-        }
-
-        /* Main Content: Question & Options */
         .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0 100px;
+            flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+            padding: 4vh 6vw; text-align: center; overflow: hidden;
         }
 
-        .question-container {
-            font-size: 4rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 80px;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            line-height: 1.3;
+        /* Pill Badges (KudiSlip Style) */
+        .pill-badge {
+            background: var(--bg-gray); color: var(--text-muted); font-size: 2vh; font-weight: 600;
+            padding: 1vh 2vw; border-radius: 50px; display: inline-block; margin-bottom: 2vh; border: 1px solid var(--border-light);
         }
 
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
+        .round-title { font-size: 8vh; font-weight: 900; color: var(--text-dark); margin-bottom: 2vh; margin-top: 15vh; letter-spacing: -2px;}
+        .round-subtitle { font-size: 3.5vh; color: var(--text-muted); margin-bottom: 4vh; font-weight: 500;}
 
-        .option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 3px solid #334466;
-            border-radius: 15px;
-            padding: 30px 40px;
-            font-size: 2.5rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
+        /* Status Bar */
+        .game-status-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4vh; flex-shrink: 0; }
+        .active-team-badge { font-size: 2.5vh; font-weight: 700; background: var(--bg-gray); color: var(--text-dark); padding: 1.5vh 3vw; border-radius: 50px; border: 1px solid var(--border-light); }
+        .timer-badge { font-size: 4vh; font-weight: 800; background: var(--black); color: white; padding: 1vh 3vw; border-radius: 50px; min-width: 12vw; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);}
+        .timer-warning { background: var(--danger-red) !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
-        .option-letter {
-            background: #ff6b00;
-            color: #fff;
-            padding: 10px 25px;
-            border-radius: 10px;
-            margin-right: 30px;
-            font-weight: 900;
+        /* Typography */
+        .question-text { font-size: 5vh; font-weight: 800; margin-bottom: 4vh; color: var(--text-dark); line-height: 1.3; letter-spacing: -1px; flex-shrink: 1;}
+        .img-desc { font-size: 2vh; color: var(--text-muted); font-weight: 500; margin-bottom: 2vh; background: var(--bg-subtle); padding: 1vh 2vw; border-radius: 8px; display: inline-block; border: 1px solid var(--border-light);}
+        
+        /* Clean Option Cards */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh; margin-top: 2vh; width: 100%; max-width: 1400px; flex-shrink: 0;}
+        .option { 
+            background: var(--bg-main); border: 1px solid var(--border-light); padding: 3vh; font-size: 2.8vh; 
+            font-weight: 600; border-radius: 16px; text-align: left; color: var(--text-dark); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s;
         }
+        .option.correct { background: var(--success-green); color: white; border-color: var(--success-green); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);}
 
-        /* Reveal Answer Styles */
-        .option.correct {
-            background: rgba(0, 255, 102, 0.2);
-            border-color: #00ff66;
-            box-shadow: 0 0 30px rgba(0, 255, 102, 0.4);
-            transform: scale(1.02);
-        }
+        .answer-explanation { margin-top: 3vh; font-size: 2.5vh; color: var(--text-dark); background: var(--bg-subtle); font-weight: 500; padding: 3vh; border-radius: 16px; border: 1px solid var(--border-light); box-shadow: 0 10px 25px rgba(0,0,0,0.05); line-height: 1.5;}
+        
+        /* Images */
+        .q-card-img { max-height: 35vh; border-radius: 16px; margin-bottom: 3vh; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: block; margin-left: auto; margin-right: auto;}
+        .ai-card-img { max-height: 35vh; margin: 2vh auto; display: block; animation: fadeUp 0.5s ease; drop-shadow: 0 10px 25px rgba(0,0,0,0.1);}
+        @keyframes fadeUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
-        .option.dim {
-            opacity: 0.3;
-            filter: grayscale(100%);
-        }
+        /* Clean Leaderboard */
+        .leaderboard-table { width: 80%; border-collapse: separate; border-spacing: 0 1.5vh; margin-top: 4vh; }
+        .leaderboard-table th { font-size: 2vh; color: var(--text-muted); font-weight: 500; text-transform: uppercase; padding: 0 2vw 1vh 2vw; border-bottom: 1px solid var(--border-light);}
+        .leaderboard-table td { padding: 2.5vh 2vw; font-size: 3.5vh; font-weight: 700; background: var(--bg-subtle); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); }
+        .leaderboard-table tr td:first-child { border-left: 1px solid var(--border-light); border-radius: 12px 0 0 12px; color: var(--text-muted); }
+        .leaderboard-table tr td:last-child { border-right: 1px solid var(--border-light); border-radius: 0 12px 12px 0; text-align: right;}
 
-        /* Operator Instructions (Hidden on big screen) */
-        .controls-hint {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.3);
-            text-align: right;
-        }
+        .winner-title { font-size: 8vh; color: var(--text-dark); margin-bottom: 2vh; margin-top: 10vh; font-weight: 900; letter-spacing: -2px;}
+        .winner-name { font-size: 7vh; color: white; font-weight: 800; background: var(--black); padding: 4vh 8vw; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        /* ---------------------------------------------------
+           HOST CONTROLLER STYLES (Admin Dashboard Vibe)
+           --------------------------------------------------- */
+        #host-view { width: 100vw; min-height: 100vh; background: var(--bg-subtle); padding: 3rem; display: flex; flex-direction: column; gap: 2rem; overflow-y: auto; }
+        .host-card { background: var(--bg-main); padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid var(--border-light); }
+        .host-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .host-header h2 { font-weight: 800; letter-spacing: -1px; }
+        
+        .host-btn { padding: 1.2rem 2rem; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s;}
+        .btn-black { background: var(--black); color: white; }
+        .btn-black:hover { background: #333; }
+        .btn-outline { background: transparent; color: var(--text-dark); border: 1px solid var(--border-light); }
+        .btn-outline:hover { background: var(--bg-gray); }
+        
+        .host-q-data { font-size: 1.3rem; background: var(--bg-gray); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; line-height: 1.5; }
+        .host-answer-key { font-size: 1.5rem; color: var(--success-green); font-weight: 800; margin-top: 1.5rem; display: block;}
+        
+        .school-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;}
+        .school-inputs input { padding: 1rem; font-size: 1.2rem; border: 1px solid var(--border-light); border-radius: 8px; font-weight: 500; background: var(--bg-subtle);}
+        .school-inputs input:focus { outline: none; border-color: var(--black); }
+
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <div class="branding">
-            <h1>KNOWLEDGE CLASH</h1>
-            <h2 id="round-indicator">ROUND 1: GENERAL STEM</h2>
+    <!-- AUDIO ASSETS -->
+    <audio id="sfx-correct" src="correct.mp3" preload="auto"></audio>
+    <audio id="sfx-wrong" src="wrong.mp3" preload="auto"></audio>
+    <audio id="sfx-timeup" src="timeup.mp3" preload="auto"></audio>
+
+    <!-- ROLE SELECTION -->
+    <div id="role-selection">
+        <div class="pill-badge">Knowledge Clash 2026</div>
+        <h1>Select your interface</h1>
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button class="role-btn btn-aud" onclick="initAudience()">Launch Projector</button>
+            <button class="role-btn btn-host" onclick="initHost()">Host Dashboard</button>
         </div>
-        <div class="timer-box" id="timer">30</div>
+        <p style="color: var(--text-muted); margin-top: 2rem; font-size: 0.9rem;">Open this file in two separate tabs. Move the Projector tab to your extended display.</p>
     </div>
 
-    <div class="content">
-        <div class="question-container" id="question-text">
-            Loading Question...
+    <!-- ==========================================
+         AUDIENCE VIEW (Projector)
+         ========================================== -->
+    <div id="audience-view" class="hidden">
+        <div id="timer-bar-container" class="hidden"><div id="timer-bar"></div></div>
+        <header>
+            <h1>Knowledge <b>Clash</b></h1>
+            <div id="aud-round-indicator" class="round-info hidden">Round 1</div>
+        </header>
+
+        <!-- A. Wait Screen -->
+        <div id="aud-wait" class="content">
+            <div class="pill-badge">Standby</div>
+            <h2 class="round-title" style="margin-top: 2vh;">Ready for next question</h2>
+        </div>
+
+        <!-- B. Round Intro -->
+        <div id="aud-intro" class="content hidden">
+            <h2 id="aud-intro-title" class="round-title">ROUND 1</h2>
+            <p id="aud-intro-subtitle" class="round-subtitle">Subtitle</p>
+        </div>
+
+        <!-- C. Question -->
+        <div id="aud-question" class="content hidden">
+            <div class="game-status-bar">
+                <div id="aud-active-team" class="active-team-badge">Team's Turn</div>
+                <div id="aud-timer" class="timer-badge">60</div>
+            </div>
+            
+            <div id="aud-q-text" class="question-text">Question?</div>
+            <img id="aud-q-image" class="q-card-img hidden" src="" alt="Question Image">
+            <div id="aud-img-desc" class="img-desc hidden"></div>
+            
+            <div id="aud-options" class="options-grid hidden">
+                <div id="aud-opt-A" class="option">A</div>
+                <div id="aud-opt-B" class="option">B</div>
+                <div id="aud-opt-C" class="option">C</div>
+                <div id="aud-opt-D" class="option">D</div>
+            </div>
+
+            <img id="aud-ans-image" class="ai-card-img hidden" src="" alt="Answer">
+            <div id="aud-ans-detail" class="answer-explanation hidden">Explanation</div>
+        </div>
+
+        <!-- D. Leaderboard -->
+        <div id="aud-leaderboard" class="content hidden">
+            <div class="pill-badge">Standings</div>
+            <h2 class="round-title" style="margin-top: 2vh;">Current Rankings</h2>
+            <table class="leaderboard-table">
+                <thead><tr><th style="text-align:left;">Rank</th><th style="text-align:left;">School</th><th style="text-align: right;">Total Points</th></tr></thead>
+                <tbody id="aud-lb-body"></tbody>
+            </table>
+        </div>
+
+        <!-- E. Winner -->
+        <div id="aud-winner" class="content hidden">
+            <h2 class="winner-title">Ultimate Champion</h2>
+            <div id="aud-winner-name" class="winner-name">WINNER</div>
+            <p style="font-size: 2.5vh; font-weight: 500; color: var(--text-muted); margin-top: 6vh;">Congratulations from Arc-Lights Foundation & ASTRO League Africa</p>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         HOST CONTROLLER (Dashboard)
+         ========================================== -->
+    <div id="host-view" class="hidden">
+        <div class="host-header">
+            <h2>Host Dashboard</h2>
+            <div id="host-status" style="font-size: 1rem; font-weight: 600; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px;">Setup Phase</div>
+        </div>
+
+        <!-- Host Setup -->
+        <div id="host-setup" class="host-card">
+            <h3 style="margin-bottom: 1rem;">Setup Participating Schools</h3>
+            <div class="school-inputs">
+                <input type="text" id="host-s1" placeholder="School 1" value="School Alpha">
+                <input type="text" id="host-s2" placeholder="School 2" value="School Beta">
+                <input type="text" id="host-s3" placeholder="School 3" value="School Gamma">
+                <input type="text" id="host-s4" placeholder="School 4" value="School Delta">
+            </div>
+            <button class="host-btn btn-black" style="width: 100%;" onclick="hostStartEvent()">Save Teams & Launch Event</button>
+        </div>
+
+        <!-- Host Game Controls -->
+        <div id="host-game" class="host-card hidden">
+            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 1.5rem;">
+                <h3 id="host-q-counter" style="font-size: 1.5rem;">Round 1 - Question 1</h3>
+                <span id="host-school-turn" style="background: var(--bg-gray); padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">Turn: School</span>
+            </div>
+            
+            <div class="host-q-data">
+                <div id="host-q-preview" style="font-weight:700;">Question text preview...</div>
+                <div id="host-ans-preview" class="host-answer-key">ANSWER: ...</div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; flex-direction:column; gap:1rem;" id="host-action-btns">
+                <button id="btn-h-push" class="host-btn btn-black" onclick="hostPushQuestion()">Push Question to Screen (Starts Timer)</button>
+                
+                <div id="host-scoring-btns" class="hidden" style="width: 100%; display: flex; gap: 1rem;">
+                    <button class="host-btn btn-black" style="flex:1;" onclick="hostAwardPoints(false, null)">Correct (Full Pts)</button>
+                    <button class="host-btn btn-outline" style="flex:1; color: var(--danger-red); border-color: var(--danger-red);" onclick="hostTriggerBonus()">Wrong / Time Up (Bonus)</button>
+                    <button class="host-btn btn-outline" style="flex:1;" onclick="hostRevealAnswer()">Reveal Answer (0 Pts)</button>
+                </div>
+
+                <div id="host-bonus-btns" class="hidden" style="width: 100%; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <!-- Filled dynamically -->
+                </div>
+
+                <div id="host-next-btns" class="hidden" style="width: 100%; display: flex; gap: 1rem;">
+                    <button id="btn-h-next" class="host-btn btn-black" style="flex:1;" onclick="hostNextQuestion()">Next Question</button>
+                    <button id="btn-h-lb" class="host-btn btn-outline hidden" style="flex:1;" onclick="hostShowLeaderboard()">Show Standings</button>
+                </div>
+            </div>
         </div>
         
-        <div class="options-grid">
-            <div class="option" id="opt-A">
-                <div class="option-letter">A</div>
-                <span id="text-A">Option A</span>
-            </div>
-            <div class="option" id="opt-B">
-                <div class="option-letter">B</div>
-                <span id="text-B">Option B</span>
-            </div>
-            <div class="option" id="opt-C">
-                <div class="option-letter">C</div>
-                <span id="text-C">Option C</span>
-            </div>
-            <div class="option" id="opt-D">
-                <div class="option-letter">D</div>
-                <span id="text-D">Option D</span>
-            </div>
+        <!-- Live Score Tracker -->
+        <div class="host-card" id="host-live-scores" class="hidden">
+            <h3 style="margin-bottom: 1rem;">Live Scoreboard</h3>
+            <div id="host-score-list" style="display: flex; justify-content: space-between; font-weight: 600; color: var(--text-muted);"></div>
         </div>
     </div>
 
-    <div class="controls-hint">
-        <b>[Space]</b> Start/Reset Timer | <b>[Enter]</b> Reveal Answer | <b>[Left/Right Arrows]</b> Change Question
-    </div>
 
-    <script>
-        // ----------------------------------------------------
-        // 🛠️ ADD YOUR QUESTIONS HERE
-        // ----------------------------------------------------
-        const quizData = [
-            {
-                round: "ROUND 1: ROBOTICS BASICS",
-                question: "What does 'WRO' stand for in the global robotics community?",
-                options: {
-                    A: "World Robot Organization",
-                    B: "World Robot Olympiad",
-                    C: "Wide Range Operations",
-                    D: "Wireless Robotics Operation"
-                },
-                correctAnswer: "B"
-            },
-            {
-                round: "ROUND 1: PROGRAMMING",
-                question: "Which of these is a widely used programming language for Artificial Intelligence?",
-                options: {
-                    A: "Python",
-                    B: "HTML",
-                    C: "CSS",
-                    D: "Markdown"
-                },
-                correctAnswer: "A"
-            },
-            {
-                round: "ROUND 2: ADVANCED ENGINEERING",
-                question: "What is the primary function of a gyroscope in a robot?",
-                options: {
-                    A: "To measure temperature",
-                    B: "To detect colors",
-                    C: "To maintain balance and orientation",
-                    D: "To process audio signals"
-                },
-                correctAnswer: "C"
-            }
-        ];
-
-        let currentQuestionIndex = 0;
-        let timeLeft = 30;
-        let timerInterval = null;
-        let isTimerRunning = false;
-        let isAnswerRevealed = false;
-
-        const elements = {
-            round: document.getElementById('round-indicator'),
-            question: document.getElementById('question-text'),
-            A: document.getElementById('text-A'),
-            B: document.getElementById('text-B'),
-            C: document.getElementById('text-C'),
-            D: document.getElementById('text-D'),
-            boxA: document.getElementById('opt-A'),
-            boxB: document.getElementById('opt-B'),
-            boxC: document.getElementById('opt-C'),
-            boxD: document.getElementById('opt-D'),
-            timer: document.getElementById('timer')
-        };
-
-        function loadQuestion() {
-            // Reset states
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            isAnswerRevealed = false;
-            timeLeft = 30;
-            elements.timer.textContent = timeLeft;
-            elements.timer.classList.remove('warning');
-
-            // Remove correct/dim classes from previous question
-            ['A', 'B', 'C', 'D'].forEach(letter => {
-                elements['box' + letter].classList.remove('correct', 'dim');
-            });
-
-            // Load new data
-            const currentQ = quizData[currentQuestionIndex];
-            elements.round.textContent = currentQ.round;
-            elements.question.textContent = currentQ.question;
-            elements.A.textContent = currentQ.options.A;
-            elements.B.textContent = currentQ.options.B;
-            elements.C.textContent = currentQ.options.C;
-            elements.D.textContent = currentQ.options.D;
+<script>
+    // =========================================================================
+    // GAME DATA (Replace qImg placeholders with your actual image file names)
+    // =========================================================================
+    const rounds = [
+        {
+            title: "ROUND 1", subtitle: "FUTURE SKILLS SPRINT (10 PTS)", points: 10, type: "mcq",
+            questions: [
+                { q: "A school wants to join a global robotics competition that has teams from over 85 countries. Which organisation runs this competition?", opts: ["A) World Robotics Association", "B) World Robot Olympiad", "C) Global Robotics Federation", "D) International STEM Games"], correctIdx: 1, detail: "WRO — World Robot Olympiad — is the global competition platform, present in over 85 countries." },
+                { q: "A developer builds a chatbot that can hold a full conversation, answer questions, write stories and summarise documents. What type of AI model powers this chatbot?", opts: ["A) A rule-based system", "B) A search engine", "C) A Large Language Model (LLM)", "D) A GPS system"], correctIdx: 2, detail: "LLMs — Large Language Models like ChatGPT and Claude — power advanced chatbots through language pattern learning." },
+                { q: "You ask your phone a question and it gives you a detailed written answer in natural human language. Which branch of AI made this possible?", opts: ["A) Computer Vision", "B) Robotics", "C) Natural Language Processing", "D) Reinforcement Learning"], correctIdx: 2, detail: "Natural Language Processing (NLP) enables computers to understand, interpret and generate human language." },
+                { q: "A robot on a factory floor picks up a box and places it on a moving conveyor belt. Which component is directly responsible for that physical movement?", opts: ["A) The sensor", "B) The actuator", "C) The processor", "D) The battery"], correctIdx: 1, detail: "Actuators are the components that physically move or interact with the environment — motors, servo arms, grippers." },
+                { q: "A programmer writes 'if temperature > 30°C, turn on the fan.' A year later, the system still does exactly that — nothing more. Which of these best describes this system?", opts: ["A) Machine learning", "B) Artificial intelligence", "C) Rule-based programming", "D) Neural network"], correctIdx: 2, detail: "Rule-based systems follow fixed instructions. They never learn or adapt — no matter how much data they see." },
+                { q: "A company feeds thousands of past customer complaints into a system. After a few weeks, it can predict which customers are likely to complain next — without being given any rules. What made this possible?", opts: ["A) Fixed programming", "B) Machine learning", "C) A database search", "D) GPS tracking"], correctIdx: 1, detail: "Machine learning finds patterns in data automatically — no one needs to write the rules." },
+                { q: "Scientists built a system that processes information in layers, passing signals between connected nodes — similar to how neurons fire in the human brain. What is this system called?", opts: ["A) A satellite network", "B) A rule engine", "C) A neural network", "D) A control board"], correctIdx: 2, detail: "Neural networks are computing systems loosely inspired by the human brain — used in image recognition, language, and more." },
+                { q: "A doctor uses an AI tool trained on 100,000 labelled X-rays — each marked 'cancerous' or 'not cancerous.' The tool now detects cancer in new X-rays. What type of machine learning is this?", opts: ["A) Unsupervised learning", "B) Reinforcement learning", "C) Deep dreaming", "D) Supervised learning"], correctIdx: 3, detail: "Supervised learning uses labelled training data — examples where the correct answer is already known." },
+                { q: "An AI is given millions of chess games, no rules and no labels — just raw game data. Over time it groups games by playing style on its own. What type of learning is this?", opts: ["A) Supervised learning", "B) Unsupervised learning", "C) Programmed learning", "D) Transfer learning"], correctIdx: 1, detail: "Unsupervised learning discovers hidden patterns in unlabelled data without being told what to find." },
+                { q: "A robot in a warehouse earns points for every successful delivery and loses points when it crashes. After thousands of attempts it learns the most efficient route. What type of AI learning is this?", opts: ["A) Supervised learning", "B) Unsupervised learning", "C) Reinforcement learning", "D) Fixed programming"], correctIdx: 2, detail: "Reinforcement learning — the AI learns by trying, failing and being rewarded or penalised, just like training an animal." }
+            ]
+        },
+        {
+            title: "ROUND 2", subtitle: "AI OR NOT? (15 PTS)", points: 15, type: "aINotAi",
+            questions: [
+                { q: "This device listens for your voice, answers questions, plays music and controls your smart home — and gets better at understanding you over time.", qImg: "alexa.jpg", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it uses NLP and machine learning to understand your voice and improve over time." },
+                { q: "This device gives you the correct answer to any maths problem you type — instantly, every time, without ever changing how it works.", qImg: "calculator.jpg", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — it follows fixed mathematical rules. No learning, no adaptation, ever." },
+                { q: "This system scans your face as you walk through, compares it to your passport photo, and decides in seconds whether to let you through.", qImg: "airport.jpg", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it uses computer vision and machine learning to match and verify faces in real time." },
+                { q: "This device was set to ring at 6AM. It has rung at exactly 6AM every day for 10 years. It has never changed.", qImg: "clock.jpg", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — it follows a fixed mechanical timer. No sensing, no processing, no learning." },
+                { q: "This screen shows you ten films you never searched for — but they are all things you end up loving. The system chose them based on everything you watched before.", qImg: "netflix.jpg", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it uses machine learning and pattern recognition to personalise recommendations." },
+                { q: "A hospital system has processed five years of patient records. It now flags patients as 'high risk' before they show any symptoms — and it was never given a list of rules for what 'high risk' means.", qImg: "", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it learned risk patterns from data without being explicitly programmed with rules." },
+                { q: "Every time you walk into a supermarket, the doors slide open. They have done this for every person for 15 years.", qImg: "", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — the doors respond to a simple motion or pressure sensor. No learning involved." },
+                { q: "A language learning app notices that you always get a specific grammar rule wrong. Without anyone telling it to, it starts showing you more exercises on that rule until your score improves.", qImg: "", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it is detecting your weak points and adapting your learning path automatically." },
+                { q: "A microwave has four buttons — 1 minute, 2 minutes, 5 minutes, and defrost. It has had these same four options since it was manufactured.", qImg: "", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — it has four fixed pre-programmed options and will never change them." },
+                { q: "You scroll past a video without watching it. You watch the next one for 3 minutes. The app immediately stops showing you videos like the first and shows you more like the second.", qImg: "", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it is learning your preferences in real time and adjusting your feed accordingly." }
+            ]
+        },
+        {
+            title: "ROUND 3", subtitle: "CHAMPIONSHIP SHOWDOWN (20 PTS)", points: 20, type: "mcq",
+            questions: [
+                { q: "Two AI teams are building fake news detectors. Team A labels 10,000 articles as 'real' or 'fake' and trains on them. Team B feeds millions of unlabelled articles and lets the system group them. What is the key difference?", opts: ["A) Team A uses unsupervised; Team B uses supervised", "B) Team A uses supervised; Team B uses unsupervised", "C) Both are using the same approach", "D) Neither approach involves AI"], correctIdx: 1, detail: "Supervised = labelled data with known answers. Unsupervised = no labels, system finds patterns on its own." },
+                { q: "An LLM has written 'The robot picked up the—' and now needs the next word. How does it decide?", opts: ["A) It searches the internet", "B) A human types the next word", "C) It predicts the most likely next word based on patterns from billions of texts", "D) It randomly picks from a dictionary"], correctIdx: 2, detail: "LLMs work by predicting the next token — word or word fragment — based on patterns learned during training on vast text data." },
+                { q: "You type 'explain climate change to a 10-year-old' into an AI chatbot and get a perfect simple explanation. What is the text you typed called — and why does it matter?", opts: ["A) A command — it switches the AI on", "B) A query — it searches a database", "C) A signal — it activates a sensor", "D) A prompt — because the quality of your instruction directly shapes the quality of the AI's response"], correctIdx: 3, detail: "Prompt engineering is now a real skill — how you ask an AI a question significantly changes the answer you get." },
+                { q: "An AI confidently tells a student that the capital of Nigeria is Lagos, and provides a detailed 'history of Lagos as capital.' The student submits it and fails. What AI problem caused this?", opts: ["A) A power failure", "B) A software bug", "C) AI hallucination — the model generated false but convincing information", "D) The student used the wrong chatbot"], correctIdx: 2, detail: "AI hallucination is when a model generates plausible-sounding but factually wrong information — a key risk of LLMs." },
+                { q: "An AI learns to play a video game. Every time it completes a level it earns points. Every time it falls off a ledge it loses points. After 10,000 games it is unbeatable. Which type of machine learning is this?", opts: ["A) Supervised learning", "B) Unsupervised learning", "C) Reinforcement learning", "D) Transfer learning"], correctIdx: 2, detail: "Reinforcement learning — the AI learns through trial, error and reward signals. No labelled data needed." },
+                { q: "A security camera watches a car park 24 hours a day. It flags any vehicle that enters after midnight that hasn't been seen before — without a programmed list of 'suspicious' vehicles. Which AI capability makes this possible?", opts: ["A) Natural language processing", "B) Computer vision combined with machine learning", "C) GPS tracking", "D) Rule-based programming"], correctIdx: 1, detail: "Computer vision identifies the vehicles; machine learning identifies which ones are unusual — together they enable intelligent surveillance." },
+                { q: "A robot surgeon makes a precise 2mm incision. The same robot also detects the patient's heartbeat and pauses automatically if it speeds up. Which two robot components made both actions possible?", opts: ["A) Battery and screen", "B) WiFi and camera", "C) Actuators (for movement) and sensors (for detecting heartbeat)", "D) Controller and speaker"], correctIdx: 2, detail: "Sensors gather information from the environment; actuators carry out physical actions. Every robot needs both." },
+                { q: "In 1997 an AI defeated the reigning world chess champion Garry Kasparov. What was the name of that AI — and who built it?", opts: ["A) AlphaGo — Google", "B) Watson — IBM", "C) Deep Blue — IBM", "D) GPT-1 — OpenAI"], correctIdx: 2, detail: "Deep Blue, built by IBM, beat Kasparov in 1997 — a landmark moment in the history of AI and computing." },
+                { q: "A facial recognition system correctly identifies 98% of light-skinned faces but only 65% of dark-skinned faces. What core AI problem does this reveal?", opts: ["A) The system needs a software update", "B) The cameras are low quality", "C) The training data was biased — it contained far more examples of light-skinned faces", "D) Dark-skinned faces are harder to photograph"], correctIdx: 2, detail: "AI bias — when training data doesn't represent all groups equally, the model performs worse for underrepresented groups." },
+                { q: "A Nigerian agritech startup builds an AI that analyses satellite images of farmland and predicts crop failure two weeks before it happens. Which combination of AI capabilities makes this possible?", opts: ["A) NLP and reinforcement learning", "B) Computer vision and machine learning", "C) Rule-based programming and GPS", "D) LLMs and supervised learning"], correctIdx: 1, detail: "Computer vision analyses the satellite images; machine learning identifies the patterns that predict crop failure." }
+            ]
         }
+    ];
 
-        function toggleTimer() {
-            if (isAnswerRevealed) return; // Don't run timer if answer is shown
+    // =========================================================================
+    // ROLE INITIALIZATION
+    // =========================================================================
+    let isHost = false;
 
-            if (isTimerRunning) {
-                clearInterval(timerInterval);
-                isTimerRunning = false;
-            } else {
-                if (timeLeft === 0) timeLeft = 30; // Reset if at zero
-                isTimerRunning = true;
-                elements.timer.classList.remove('warning');
-                timerInterval = setInterval(() => {
-                    timeLeft--;
-                    elements.timer.textContent = timeLeft;
-                    
-                    if (timeLeft <= 10) elements.timer.classList.add('warning');
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        isTimerRunning = false;
+    function initAudience() {
+        isHost = false;
+        document.getElementById('role-selection').classList.add('hidden');
+        document.getElementById('audience-view').classList.remove('hidden');
+        
+        try { 
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen(); }
+        } catch(e) { console.log("Fullscreen request blocked."); }
+        
+        // --- HIGH-SPEED POLLING ENGINE ---
+        let lastTimestamp = 0;
+        setInterval(() => {
+            const rawData = localStorage.getItem('KC_CMD');
+            if (rawData) {
+                try {
+                    const cmd = JSON.parse(rawData);
+                    if (cmd.ts && cmd.ts !== lastTimestamp) {
+                        lastTimestamp = cmd.ts;
+                        executeAudienceCommand(cmd);
                     }
-                }, 1000);
+                } catch (e) { console.error("Sync error:", e); }
             }
-        }
+        }, 50); 
+    }
 
-        function revealAnswer() {
-            if (isAnswerRevealed) return;
-            isAnswerRevealed = true;
-            clearInterval(timerInterval);
-            isTimerRunning = false;
+    function initHost() {
+        isHost = true;
+        document.getElementById('role-selection').classList.add('hidden');
+        document.getElementById('host-view').classList.remove('hidden');
+        localStorage.removeItem('KC_CMD'); 
+    }
 
-            const correctLetter = quizData[currentQuestionIndex].correctAnswer;
+    // =========================================================================
+    // HOST CONTROLLER LOGIC (SENDS COMMANDS)
+    // =========================================================================
+    let hostState = { schools: [], rIdx: 0, qIdx: 0 };
 
-            // Highlight correct, dim the rest
-            ['A', 'B', 'C', 'D'].forEach(letter => {
-                if (letter === correctLetter) {
-                    elements['box' + letter].classList.add('correct');
-                } else {
-                    elements['box' + letter].classList.add('dim');
-                }
-            });
-        }
+    function sendCommand(action, payload = {}) {
+        const cmd = { action, payload, ts: Date.now() };
+        localStorage.setItem('KC_CMD', JSON.stringify(cmd));
+    }
 
-        // Keyboard Controls for the AV Desk
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault(); // Prevents page scrolling
-                toggleTimer();
-            } else if (e.code === 'Enter') {
-                revealAnswer();
-            } else if (e.code === 'ArrowRight') {
-                if (currentQuestionIndex < quizData.length - 1) {
-                    currentQuestionIndex++;
-                    loadQuestion();
-                }
-            } else if (e.code === 'ArrowLeft') {
-                if (currentQuestionIndex > 0) {
-                    currentQuestionIndex--;
-                    loadQuestion();
-                }
+    function hostStartEvent() {
+        hostState.schools = [
+            { id: 0, name: document.getElementById('host-s1').value || "S1", score: 0 },
+            { id: 1, name: document.getElementById('host-s2').value || "S2", score: 0 },
+            { id: 2, name: document.getElementById('host-s3').value || "S3", score: 0 },
+            { id: 3, name: document.getElementById('host-s4').value || "S4", score: 0 }
+        ];
+        
+        document.getElementById('host-setup').classList.add('hidden');
+        document.getElementById('host-game').classList.remove('hidden');
+        document.getElementById('host-live-scores').classList.remove('hidden');
+        hostUpdateScores();
+
+        sendCommand('SHOW_INTRO', { rIdx: hostState.rIdx, schools: hostState.schools });
+        hostLoadQuestionPreview();
+    }
+
+    function hostLoadQuestionPreview() {
+        const r = rounds[hostState.rIdx];
+        const q = r.questions[hostState.qIdx];
+        const activeSchool = hostState.schools[hostState.qIdx % 4];
+
+        document.getElementById('host-status').innerText = "Status: Live";
+        document.getElementById('host-q-counter').innerText = `${r.title} - Question ${hostState.qIdx + 1}`;
+        document.getElementById('host-school-turn').innerText = `${activeSchool.name}'s Turn`;
+        document.getElementById('host-q-preview').innerText = q.q;
+        
+        let ansTxt = "";
+        if(r.type === 'mcq') ansTxt = q.opts[q.correctIdx];
+        else ansTxt = q.ansImg.includes('Not') ? "NOT AI" : "AI";
+        document.getElementById('host-ans-preview').innerText = `ANSWER: ${ansTxt}`;
+
+        document.getElementById('btn-h-push').innerText = "Push Question to Projector (Starts Timer)";
+        document.getElementById('btn-h-push').classList.remove('hidden');
+        document.getElementById('host-scoring-btns').classList.add('hidden');
+        document.getElementById('host-bonus-btns').classList.add('hidden');
+        document.getElementById('host-next-btns').classList.add('hidden');
+    }
+
+    function hostPushQuestion() {
+        document.getElementById('btn-h-push').classList.add('hidden');
+        document.getElementById('host-scoring-btns').classList.remove('hidden');
+        
+        sendCommand('SHOW_QUESTION', { rIdx: hostState.rIdx, qIdx: hostState.qIdx, activeSchoolIdx: hostState.qIdx % 4 });
+    }
+
+    function hostAwardPoints(isBonus, schoolId) {
+        const r = rounds[hostState.rIdx];
+        const pts = isBonus ? (r.points / 2) : r.points;
+        const targetId = isBonus ? schoolId : (hostState.qIdx % 4);
+
+        hostState.schools[targetId].score += pts;
+        hostUpdateScores();
+        
+        sendCommand('PLAY_SOUND', { type: 'correct' });
+        hostRevealAnswer();
+    }
+
+    function hostTriggerBonus() {
+        document.getElementById('host-scoring-btns').classList.add('hidden');
+        
+        const bonusDiv = document.getElementById('host-bonus-btns');
+        bonusDiv.innerHTML = '';
+        bonusDiv.classList.remove('hidden');
+
+        sendCommand('PLAY_SOUND', { type: 'wrong' });
+
+        const activeId = hostState.qIdx % 4;
+        hostState.schools.forEach((s, idx) => {
+            if(idx !== activeId) {
+                const b = document.createElement('button');
+                b.className = "host-btn btn-outline";
+                b.innerText = `Give Bonus to ${s.name}`;
+                b.onclick = () => hostAwardPoints(true, idx);
+                bonusDiv.appendChild(b); 
             }
         });
+        
+        const noB = document.createElement('button');
+        noB.className = "host-btn btn-black";
+        noB.innerText = "No One Gets It";
+        noB.onclick = () => hostRevealAnswer();
+        bonusDiv.appendChild(noB);
 
-        // Initialize the first question on load
-        loadQuestion();
-    </script>
+        sendCommand('TRIGGER_BONUS', {});
+    }
+
+    function hostRevealAnswer() {
+        document.getElementById('host-scoring-btns').classList.add('hidden');
+        document.getElementById('host-bonus-btns').classList.add('hidden');
+        document.getElementById('host-next-btns').classList.remove('hidden');
+
+        const isLastQ = hostState.qIdx === rounds[hostState.rIdx].questions.length - 1;
+        if(isLastQ) {
+            document.getElementById('btn-h-next').classList.add('hidden');
+            document.getElementById('btn-h-lb').classList.remove('hidden');
+        } else {
+            document.getElementById('btn-h-next').classList.remove('hidden');
+            document.getElementById('btn-h-lb').classList.add('hidden');
+        }
+
+        sendCommand('REVEAL_ANSWER', {});
+    }
+
+    function hostNextQuestion() {
+        hostState.qIdx++;
+        hostLoadQuestionPreview();
+        sendCommand('WAIT_SCREEN', {});
+    }
+
+    function hostShowLeaderboard() {
+        sendCommand('SHOW_LB', { schools: hostState.schools });
+        
+        document.getElementById('host-next-btns').classList.add('hidden');
+        document.getElementById('btn-h-push').classList.remove('hidden');
+        document.getElementById('btn-h-push').innerText = "Continue to Next Round / Winner";
+        
+        document.getElementById('btn-h-push').onclick = () => {
+            if(hostState.rIdx < rounds.length - 1) {
+                hostState.rIdx++;
+                hostState.qIdx = 0;
+                document.getElementById('btn-h-push').onclick = hostPushQuestion;
+                sendCommand('SHOW_INTRO', { rIdx: hostState.rIdx });
+                hostLoadQuestionPreview();
+            } else {
+                sendCommand('SHOW_WINNER', { schools: hostState.schools });
+                document.getElementById('host-q-preview').innerText = "EVENT OVER";
+                document.getElementById('btn-h-push').classList.add('hidden');
+            }
+        };
+    }
+
+    function hostUpdateScores() {
+        const div = document.getElementById('host-score-list');
+        div.innerHTML = hostState.schools.map(s => `<span>${s.name}: ${s.score}</span>`).join('');
+    }
+
+
+    // =========================================================================
+    // AUDIENCE PROJECTOR LOGIC (EXECUTES COMMANDS)
+    // =========================================================================
+    let audTimer = null;
+
+    function audHideAll() {
+        ['aud-wait', 'aud-intro', 'aud-question', 'aud-leaderboard', 'aud-winner'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById('timer-bar-container').classList.add('hidden');
+    }
+
+    function executeAudienceCommand(cmd) {
+        if(cmd.action === 'PLAY_SOUND') {
+            const audioEl = document.getElementById('sfx-' + cmd.payload.type);
+            if(audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e => console.log("Audio blocked by browser", e));
+            }
+            return;
+        }
+
+        clearInterval(audTimer);
+        document.getElementById('timer-bar').style.transition = "none";
+
+        if(cmd.action === 'SHOW_INTRO') {
+            if(cmd.payload.schools) window.localSchools = cmd.payload.schools;
+            audHideAll();
+            document.getElementById('aud-intro-title').innerText = rounds[cmd.payload.rIdx].title;
+            document.getElementById('aud-intro-subtitle').innerHTML = rounds[cmd.payload.rIdx].subtitle;
+            document.getElementById('aud-intro').classList.remove('hidden');
+            document.getElementById('aud-round-indicator').innerText = rounds[cmd.payload.rIdx].title;
+            document.getElementById('aud-round-indicator').classList.remove('hidden');
+        }
+
+        if(cmd.action === 'WAIT_SCREEN') {
+            audHideAll();
+            document.getElementById('aud-wait').classList.remove('hidden');
+        }
+
+        if(cmd.action === 'SHOW_QUESTION') {
+            audHideAll();
+            const r = rounds[cmd.payload.rIdx];
+            const q = r.questions[cmd.payload.qIdx];
+            const school = window.localSchools[cmd.payload.activeSchoolIdx];
+
+            window.currentQData = q; 
+            window.currentRType = r.type;
+
+            document.getElementById('aud-active-team').innerText = `${school.name}'s Turn (${r.points} PTS)`;
+            document.getElementById('aud-active-team').style.background = "var(--bg-gray)";
+            document.getElementById('aud-active-team').style.color = "var(--text-dark)";
+
+            document.getElementById('aud-q-text').innerText = q.q;
+            document.getElementById('aud-ans-image').classList.add('hidden');
+            document.getElementById('aud-ans-detail').classList.add('hidden');
+            document.getElementById('aud-options').classList.add('hidden');
+            document.getElementById('aud-img-desc').classList.add('hidden');
+            
+            if(q.qImg) {
+                document.getElementById('aud-q-image').src = q.qImg;
+                document.getElementById('aud-q-image').classList.remove('hidden');
+            } else {
+                document.getElementById('aud-q-image').classList.add('hidden');
+            }
+
+            for(let i=0; i<4; i++) {
+                let opt = document.getElementById('aud-opt-'+['A','B','C','D'][i]);
+                if(opt) opt.classList.remove('correct');
+            }
+
+            if(r.type === "mcq") {
+                document.getElementById('aud-options').classList.remove('hidden');
+                document.getElementById('aud-opt-A').innerText = q.opts[0];
+                document.getElementById('aud-opt-B').innerText = q.opts[1];
+                document.getElementById('aud-opt-C').innerText = q.opts[2];
+                document.getElementById('aud-opt-D').innerText = q.opts[3];
+            } else if (q.imgDesc) {
+                document.getElementById('aud-img-desc').innerText = q.imgDesc;
+                document.getElementById('aud-img-desc').classList.remove('hidden');
+            }
+
+            document.getElementById('aud-question').classList.remove('hidden');
+            document.getElementById('timer-bar-container').classList.remove('hidden');
+            audStartTimer();
+        }
+
+        if(cmd.action === 'TRIGGER_BONUS') {
+            const topBar = document.getElementById('aud-active-team');
+            topBar.innerText = `BONUS QUESTION!`;
+            topBar.style.background = "var(--black)";
+            topBar.style.color = "white";
+            document.getElementById('aud-timer').innerText = "BONUS";
+            document.getElementById('aud-timer').classList.remove('timer-warning');
+            document.getElementById('timer-bar-container').classList.add('hidden');
+        }
+
+        if(cmd.action === 'REVEAL_ANSWER') {
+            const q = window.currentQData;
+            if(window.currentRType === "mcq") {
+                const letters = ['A','B','C','D'];
+                document.getElementById('aud-opt-' + letters[q.correctIdx]).classList.add('correct');
+            } else {
+                document.getElementById('aud-ans-image').src = q.ansImg;
+                document.getElementById('aud-ans-image').classList.remove('hidden');
+            }
+            document.getElementById('aud-ans-detail').innerText = q.detail;
+            document.getElementById('aud-ans-detail').classList.remove('hidden');
+            document.getElementById('timer-bar-container').classList.add('hidden');
+        }
+
+        if(cmd.action === 'SHOW_LB') {
+            audHideAll();
+            window.localSchools = cmd.payload.schools;
+            let sorted = [...window.localSchools].sort((a,b) => b.score - a.score);
+            const tbody = document.getElementById('aud-lb-body');
+            tbody.innerHTML = '';
+            sorted.forEach((s, i) => {
+                let suf = i===0?"ST":i===1?"ND":i===2?"RD":"TH";
+                tbody.innerHTML += `<tr><td>${i+1}${suf}</td><td>${s.name}</td><td>${s.score} PTS</td></tr>`;
+            });
+            document.getElementById('aud-leaderboard').classList.remove('hidden');
+        }
+
+        if(cmd.action === 'SHOW_WINNER') {
+            audHideAll();
+            document.getElementById('aud-round-indicator').classList.add('hidden');
+            window.localSchools = cmd.payload.schools;
+            let sorted = [...window.localSchools].sort((a,b) => b.score - a.score);
+            document.getElementById('aud-winner-name').innerText = sorted[0].name;
+            document.getElementById('aud-winner').classList.remove('hidden');
+        }
+    }
+
+    function audStartTimer() {
+        let t = 60;
+        const d = document.getElementById('aud-timer');
+        const b = document.getElementById('timer-bar');
+        d.innerText = t;
+        d.classList.remove('timer-warning');
+        
+        b.style.transition = "none";
+        b.style.width = "100%";
+        b.style.backgroundColor = "var(--black)";
+        void b.offsetWidth;
+        b.style.transition = "width 1s linear, background-color 0.5s ease";
+
+        audTimer = setInterval(() => {
+            t--;
+            d.innerText = t;
+            b.style.width = ((t/60)*100) + "%";
+            if (t <= 30) b.style.backgroundColor = "var(--text-muted)";
+            if (t <= 10) {
+                d.classList.add('timer-warning');
+                b.style.backgroundColor = "var(--danger-red)";
+            }
+            if (t <= 0) {
+                clearInterval(audTimer);
+                d.classList.remove('timer-warning');
+                d.innerText = "TIME UP!";
+                
+                const audioEl = document.getElementById('sfx-timeup');
+                if(audioEl) {
+                    audioEl.currentTime = 0;
+                    audioEl.play().catch(e => console.log("Audio blocked by browser", e));
+                }
+            }
+        }, 1000);
+    }
+</script>
 </body>
 </html>
