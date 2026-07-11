@@ -650,7 +650,7 @@
     }
 
     function audStartTimer() {
-        let t = 60;
+        let t = 30;
         const d = document.getElementById('aud-timer');
         const b = document.getElementById('timer-bar');
         d.innerText = t;
@@ -665,9 +665,9 @@
         audTimer = setInterval(() => {
             t--;
             d.innerText = t;
-            b.style.width = ((t/60)*100) + "%";
-            if (t <= 30) b.style.backgroundColor = "var(--text-muted)";
-            if (t <= 10) {
+            b.style.width = ((t/30)*100) + "%";
+            if (t <= 15) b.style.backgroundColor = "var(--text-muted)";
+            if (t <= 5) {
                 d.classList.add('timer-warning');
                 b.style.backgroundColor = "var(--danger-red)";
             }
