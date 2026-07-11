@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Clash 2026 - Auto Turn Edition</title>
+    <title>Knowledge Clash 2026 - Fastest Finger Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -37,7 +37,9 @@
 
         /* Live Scoreboard Footer */
         #live-scoreboard { width: 100%; height: 8vh; background: var(--bg-subtle); border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; left: 0; z-index: 50; }
-        .team-score-card { font-size: 2.2vh; font-weight: 700; display: flex; gap: 1vw; align-items: center; }
+        .team-score-card { font-size: 2.2vh; font-weight: 700; display: flex; gap: 1vw; align-items: center; padding: 1vh 2vw; border-radius: 12px; transition: 0.3s; }
+        .team-score-card.locked-in { background: var(--gold); color: white; transform: scale(1.1); box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); }
+        .team-score-card.locked-out { opacity: 0.3; filter: grayscale(100%); }
         .score-val { background: var(--black); color: white; padding: 0.5vh 1.5vw; border-radius: 8px; font-weight: 900; transition: all 0.3s; }
         .score-val.flash { background: var(--success-green); transform: scale(1.2); }
 
@@ -67,7 +69,7 @@
         @keyframes shine { 0% { left: -50%; } 100% { left: 150%; } }
 
         /* Cheat Sheet */
-        #cheat-sheet { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 10px; font-size: 12px; z-index: 1000; display: none; text-align: left; line-height: 1.8;}
+        #cheat-sheet { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 10px; font-size: 14px; z-index: 1000; display: none; text-align: left; line-height: 1.8;}
     </style>
 </head>
 <body>
@@ -131,16 +133,17 @@
     </div>
 
     <div id="live-scoreboard" class="hidden">
-        <div class="team-score-card"><span id="sb-name-0">T1</span> <span class="score-val" id="sb-score-0">0</span></div>
-        <div class="team-score-card"><span id="sb-name-1">T2</span> <span class="score-val" id="sb-score-1">0</span></div>
-        <div class="team-score-card"><span id="sb-name-2">T3</span> <span class="score-val" id="sb-score-2">0</span></div>
-        <div class="team-score-card"><span id="sb-name-3">T4</span> <span class="score-val" id="sb-score-3">0</span></div>
+        <div class="team-score-card" id="card-0"><b>[1]</b> <span id="sb-name-0">T1</span> <span class="score-val" id="sb-score-0">0</span></div>
+        <div class="team-score-card" id="card-1"><b>[2]</b> <span id="sb-name-1">T2</span> <span class="score-val" id="sb-score-1">0</span></div>
+        <div class="team-score-card" id="card-2"><b>[3]</b> <span id="sb-name-2">T3</span> <span class="score-val" id="sb-score-2">0</span></div>
+        <div class="team-score-card" id="card-3"><b>[4]</b> <span id="sb-name-3">T4</span> <span class="score-val" id="sb-score-3">0</span></div>
     </div>
 
     <div id="cheat-sheet">
-        <b>[→] Right Arrow:</b> Next Screen / Next Question<br>
-        <b>[SPACE]:</b> Start Timer (Use this for Bonuses too!)<br>
-        <b>[MOUSE CLICK]:</b> Click an option to lock answer.<br>
+        <b>[→] Right Arrow:</b> Next Screen / Question<br>
+        <b>[SPACE]:</b> Start/Resume Timer<br>
+        <b>[ 1, 2, 3, 4 ]:</b> Lock in the Team that Buzzed!<br>
+        <b>[MOUSE CLICK]:</b> Click option to lock answer.<br>
         <b>[ H ]:</b> Toggle this Help Menu
     </div>
 
@@ -202,14 +205,15 @@
     let currentRoundIdx = -1; 
     let currentQIdx = -1;
     
-    // Auto-Turn Tracking Variables
-    let activeTurn = 0; 
-    let isBonusState = false;
+    // Fastest Finger Tracking Variables
+    let activeBuzzerIdx = -1; 
     let attemptsThisQ = 0;
+    let teamsLockedOut = [];
 
     let timerInterval = null;
     let isTimerRunning = false;
     let isAnswerRevealed = false;
+    let timeRemaining = 30; // Store time if paused
 
     function saveTeams() {
         for(let i=0; i<4; i++) {
@@ -225,7 +229,6 @@
     function updateScoreboard(teamIdx) {
         let scoreUI = document.getElementById(`sb-score-${teamIdx}`);
         scoreUI.innerText = teams[teamIdx].score;
-        // Flash animation to show who got points
         scoreUI.classList.add('flash');
         setTimeout(() => { scoreUI.classList.remove('flash'); }, 1000);
     }
@@ -254,10 +257,15 @@
         const r = rounds[currentRoundIdx];
         const q = r.questions[currentQIdx];
 
-        // --- Core Auto-Turn Logic ---
-        activeTurn = currentQIdx % 4; // Fairly rotates through the 4 teams
-        isBonusState = false;
+        // Reset Fastest Finger State
+        activeBuzzerIdx = -1;
         attemptsThisQ = 0;
+        teamsLockedOut = [];
+        timeRemaining = 30;
+
+        for(let i=0; i<4; i++) {
+            document.getElementById(`card-${i}`).className = "team-score-card";
+        }
 
         // Reset UI
         clearInterval(timerInterval);
@@ -266,7 +274,7 @@
         document.getElementById('timer').classList.remove('timer-warning');
         
         let topBar = document.getElementById('active-team');
-        topBar.innerText = `${teams[activeTurn].name}'s Turn (${r.points} PTS)`;
+        topBar.innerText = `FASTEST FINGER (${r.points} PTS)`;
         topBar.style.background = "var(--bg-gray)";
         topBar.style.color = "var(--text-dark)";
         
@@ -298,10 +306,32 @@
         document.getElementById('timer-bar-container').classList.remove('hidden');
     }
 
+    function lockInTeam(teamIdx) {
+        if(isAnswerRevealed || activeBuzzerIdx !== -1 || teamsLockedOut.includes(teamIdx)) return;
+        
+        // Timer paused!
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        activeBuzzerIdx = teamIdx;
+
+        // UI Updates for lock-in
+        for(let i=0; i<4; i++) {
+            let card = document.getElementById(`card-${i}`);
+            if(i === teamIdx) card.className = "team-score-card locked-in";
+            else if (teamsLockedOut.includes(i)) card.className = "team-score-card locked-out";
+            else card.className = "team-score-card";
+        }
+
+        let pts = (attemptsThisQ === 0) ? rounds[currentRoundIdx].points : (rounds[currentRoundIdx].points / 2);
+        let topBar = document.getElementById('active-team');
+        topBar.innerText = `${teams[teamIdx].name.toUpperCase()} IS ANSWERING... (${pts} PTS)`;
+        topBar.style.background = "var(--gold)";
+        topBar.style.color = "white";
+    }
+
     function processFailure(clickedIdx) {
         clearInterval(timerInterval);
         isTimerRunning = false;
-        document.getElementById('timer-bar-container').classList.add('hidden');
 
         // Play sounds and mark wrong
         if(clickedIdx !== null) {
@@ -312,41 +342,51 @@
             // It was a timeout
             document.getElementById('sfx-timeup').currentTime = 0;
             document.getElementById('sfx-timeup').play().catch(()=>{});
+            document.getElementById('timer-bar-container').classList.add('hidden');
         }
 
         const r = rounds[currentRoundIdx];
         const q = r.questions[currentQIdx];
         attemptsThisQ++;
 
-        // If the question only has 2 options (like AI / NOT AI), don't pass it.
-        // Otherwise, allow passing to the other teams (up to 3 passes).
+        // Lock out the team that just failed
+        if(activeBuzzerIdx !== -1) {
+            teamsLockedOut.push(activeBuzzerIdx);
+            document.getElementById(`card-${activeBuzzerIdx}`).className = "team-score-card locked-out";
+            activeBuzzerIdx = -1; // Reset so someone else can buzz
+        }
+
+        // Check if we should pass or reveal
         let maxAttempts = (q.opts.length === 2) ? 1 : 4; 
 
-        if (attemptsThisQ < maxAttempts && attemptsThisQ < q.opts.length) {
-            // --- PASS TO NEXT TEAM (BONUS) ---
-            isBonusState = true;
-            activeTurn = (activeTurn + 1) % 4; // Shift to the next team
-            
+        if (attemptsThisQ < maxAttempts && attemptsThisQ < q.opts.length && teamsLockedOut.length < 4) {
+            // --- OPEN TO OTHERS ---
             let pts = r.points / 2;
             let topBar = document.getElementById('active-team');
-            topBar.innerText = `BONUS: ${teams[activeTurn].name}'s Turn (${pts} PTS)`;
+            topBar.innerText = `OPEN TO OTHERS! (${pts} PTS) - Hit Space to resume`;
             topBar.style.background = "var(--black)";
             topBar.style.color = "white";
             
-            document.getElementById('timer').innerText = "30";
-            document.getElementById('timer').classList.remove('timer-warning');
-            // Wait for Host to press Spacebar to start timer again
         } else {
             // --- NO MORE PASSES: REVEAL ANSWER ---
             isAnswerRevealed = true;
             document.getElementById('opt-' + q.correctIdx).classList.add('correct');
             document.getElementById('ans-detail').innerText = q.detail;
             document.getElementById('ans-detail').classList.remove('hidden');
+            let topBar = document.getElementById('active-team');
+            topBar.innerText = `QUESTION CLOSED`;
+            topBar.style.background = "var(--bg-gray)";
+            topBar.style.color = "var(--text-dark)";
+            document.getElementById('timer-bar-container').classList.add('hidden');
         }
     }
 
     function selectOption(clickedIdx) {
         if(isAnswerRevealed) return;
+        if(activeBuzzerIdx === -1) {
+            alert("Please press 1, 2, 3, or 4 on the keyboard to lock in the team that buzzed first!");
+            return;
+        }
         
         // Prevent clicking an option that was already marked wrong
         const clickedEl = document.getElementById('opt-' + clickedIdx);
@@ -366,14 +406,19 @@
             document.getElementById('sfx-correct').currentTime = 0;
             document.getElementById('sfx-correct').play().catch(()=>{});
             
-            // 2. AWARD POINTS AUTOMATICALLY TO WHOEVER'S TURN IT IS
-            let earnedPts = isBonusState ? (r.points / 2) : r.points;
-            teams[activeTurn].score += earnedPts;
-            updateScoreboard(activeTurn);
+            // 2. AWARD POINTS (Full if first try, Half if steal)
+            let earnedPts = (attemptsThisQ === 0) ? r.points : (r.points / 2);
+            teams[activeBuzzerIdx].score += earnedPts;
+            updateScoreboard(activeBuzzerIdx);
 
             isAnswerRevealed = true;
             document.getElementById('ans-detail').innerText = q.detail;
             document.getElementById('ans-detail').classList.remove('hidden');
+
+            let topBar = document.getElementById('active-team');
+            topBar.innerText = `CORRECT! +${earnedPts} PTS to ${teams[activeBuzzerIdx].name}`;
+            topBar.style.background = "var(--success-green)";
+            topBar.style.color = "white";
         } else {
             // Answer was wrong - Handle failure and passing logic
             processFailure(clickedIdx);
@@ -381,35 +426,37 @@
     }
 
     function startTimer() {
-        if (currentRoundIdx === -1 || currentQIdx === -1 || isAnswerRevealed || isTimerRunning) return; 
+        if (currentRoundIdx === -1 || currentQIdx === -1 || isAnswerRevealed || isTimerRunning || activeBuzzerIdx !== -1) return; 
         
         isTimerRunning = true;
-        let t = 30;
         const d = document.getElementById('timer');
         const b = document.getElementById('timer-bar');
         
-        d.innerText = t;
         d.classList.remove('timer-warning');
-        
         document.getElementById('timer-bar-container').classList.remove('hidden');
-        b.style.transition = "none";
-        b.style.width = "100%";
-        b.style.backgroundColor = "var(--black)";
-        void b.offsetWidth;
+        
+        let topBar = document.getElementById('active-team');
+        if (attemptsThisQ > 0) {
+            topBar.innerText = `STEAL OPPORTUNITY (${rounds[currentRoundIdx].points / 2} PTS)`;
+        } else {
+            topBar.innerText = `FASTEST FINGER (${rounds[currentRoundIdx].points} PTS)`;
+            topBar.style.background = "var(--bg-gray)";
+            topBar.style.color = "var(--text-dark)";
+        }
+
         b.style.transition = "width 1s linear, background-color 0.5s ease";
 
         timerInterval = setInterval(() => {
-            t--;
-            d.innerText = t;
-            b.style.width = ((t/30)*100) + "%";
+            timeRemaining--;
+            d.innerText = timeRemaining;
+            b.style.width = ((timeRemaining/30)*100) + "%";
             
-            if (t <= 15) b.style.backgroundColor = "var(--text-muted)";
-            if (t <= 5) {
+            if (timeRemaining <= 15) b.style.backgroundColor = "var(--text-muted)";
+            if (timeRemaining <= 5) {
                 d.classList.add('timer-warning');
                 b.style.backgroundColor = "var(--danger-red)";
             }
-            if (t <= 0) {
-                // Timer ran out! Treat it as a failure.
+            if (timeRemaining <= 0) {
                 processFailure(null);
             }
         }, 1000);
@@ -472,6 +519,14 @@
                 e.preventDefault(); 
                 startTimer();
             }
+        }
+
+        // BUZZER KEYS: 1, 2, 3, 4
+        if(document.getElementById('screen-question').classList.contains('hidden') === false) {
+            if(e.key === '1') lockInTeam(0);
+            if(e.key === '2') lockInTeam(1);
+            if(e.key === '3') lockInTeam(2);
+            if(e.key === '4') lockInTeam(3);
         }
     });
 </script>
