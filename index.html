@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Clash 2026 - Ultimate Edition</title>
+    <title>Knowledge Clash 2026 - Auto Turn Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -38,11 +38,12 @@
         /* Live Scoreboard Footer */
         #live-scoreboard { width: 100%; height: 8vh; background: var(--bg-subtle); border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; left: 0; z-index: 50; }
         .team-score-card { font-size: 2.2vh; font-weight: 700; display: flex; gap: 1vw; align-items: center; }
-        .score-val { background: var(--black); color: white; padding: 0.5vh 1.5vw; border-radius: 8px; font-weight: 900; }
+        .score-val { background: var(--black); color: white; padding: 0.5vh 1.5vw; border-radius: 8px; font-weight: 900; transition: all 0.3s; }
+        .score-val.flash { background: var(--success-green); transform: scale(1.2); }
 
         /* Game Status */
         .game-status-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 3vh; flex-shrink: 0; }
-        .active-team-badge { font-size: 2.5vh; font-weight: 700; background: var(--bg-gray); color: var(--text-dark); padding: 1.5vh 3vw; border-radius: 50px; border: 1px solid var(--border-light); }
+        .active-team-badge { font-size: 2.5vh; font-weight: 700; background: var(--bg-gray); color: var(--text-dark); padding: 1.5vh 3vw; border-radius: 50px; border: 1px solid var(--border-light); transition: all 0.3s; }
         .timer-badge { font-size: 4vh; font-weight: 800; background: var(--black); color: white; padding: 1vh 3vw; border-radius: 50px; min-width: 12vw; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);}
         .timer-warning { background: var(--danger-red) !important; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -53,20 +54,11 @@
         .option { background: var(--bg-main); border: 2px solid var(--border-light); padding: 2vh; font-size: 2.2vh; font-weight: 600; border-radius: 16px; text-align: left; color: var(--text-dark); cursor: pointer; transition: 0.2s; }
         .option:hover { border-color: var(--black); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .option.correct { background: var(--success-green); color: white; border-color: var(--success-green); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);}
-        .option.wrong { background: var(--danger-red); color: white; border-color: var(--danger-red); opacity: 0.8; }
+        .option.wrong { background: var(--danger-red); color: white; border-color: var(--danger-red); opacity: 0.5; cursor: not-allowed; }
         .answer-explanation { margin-top: 2vh; font-size: 2.2vh; color: var(--text-dark); background: var(--bg-subtle); font-weight: 500; padding: 2vh; border-radius: 12px; border: 1px solid var(--border-light); line-height: 1.5; max-width: 1200px;}
         
         .q-card-img { max-height: 25vh; border-radius: 12px; margin-bottom: 2vh; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: block; margin-left: auto; margin-right: auto;}
         
-        /* Scoring Overlay Panel */
-        #scoring-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 200; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .scoring-box { background: white; padding: 5vh 4vw; border-radius: 24px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .scoring-box h2 { font-size: 3.5vh; font-weight: 800; margin-bottom: 3vh; }
-        .team-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh; }
-        .team-award-btn { padding: 2vh; font-size: 2vh; font-weight: 700; border: 2px solid var(--border-light); border-radius: 12px; background: var(--bg-subtle); cursor: pointer; transition: 0.2s; }
-        .team-award-btn:hover { background: var(--black); color: white; border-color: var(--black); }
-        .nobody-btn { grid-column: span 2; background: var(--bg-gray); border-color: var(--border-light); color: var(--text-muted); }
-
         /* Leaderboard Animations */
         .rank-row { display: flex; justify-content: space-between; align-items: center; width: 50vw; background: var(--bg-subtle); padding: 2vh 3vw; border-radius: 16px; margin-bottom: 1.5vh; font-size: 3vh; font-weight: 700; border: 1px solid var(--border-light); }
         .winner-box { background: var(--black); color: white; padding: 4vh 6vw; border-radius: 24px; width: 60vw; margin-bottom: 4vh; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: winnerPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
@@ -138,19 +130,6 @@
         <div id="lb-runners-up"></div>
     </div>
 
-    <div id="scoring-overlay" class="hidden">
-        <div class="scoring-box">
-            <h2>Who answered?</h2>
-            <div class="team-btn-grid">
-                <button class="team-award-btn" id="btn-award-0" onclick="awardPoints(0)"></button>
-                <button class="team-award-btn" id="btn-award-1" onclick="awardPoints(1)"></button>
-                <button class="team-award-btn" id="btn-award-2" onclick="awardPoints(2)"></button>
-                <button class="team-award-btn" id="btn-award-3" onclick="awardPoints(3)"></button>
-                <button class="team-award-btn nobody-btn" onclick="awardPoints(-1)">Nobody / Time Up (0 pts)</button>
-            </div>
-        </div>
-    </div>
-
     <div id="live-scoreboard" class="hidden">
         <div class="team-score-card"><span id="sb-name-0">T1</span> <span class="score-val" id="sb-score-0">0</span></div>
         <div class="team-score-card"><span id="sb-name-1">T2</span> <span class="score-val" id="sb-score-1">0</span></div>
@@ -159,9 +138,9 @@
     </div>
 
     <div id="cheat-sheet">
-        <b>[→] Right Arrow:</b> Next Screen / Question<br>
-        <b>[SPACE]:</b> Start Timer<br>
-        <b>[MOUSE CLICK]:</b> Click an option on screen to reveal answer & stop timer.<br>
+        <b>[→] Right Arrow:</b> Next Screen / Next Question<br>
+        <b>[SPACE]:</b> Start Timer (Use this for Bonuses too!)<br>
+        <b>[MOUSE CLICK]:</b> Click an option to lock answer.<br>
         <b>[ H ]:</b> Toggle this Help Menu
     </div>
 
@@ -184,7 +163,7 @@
             ]
         },
         {
-            title: "ROUND 2", subtitle: "AI OR NOT? (15 PTS)", points: 15, type: "mcq", // Treat as MCQ for clicking
+            title: "ROUND 2", subtitle: "AI OR NOT? (15 PTS)", points: 15, type: "mcq", 
             questions: [
                 { q: "This device listens for your voice, answers questions, plays music and controls your smart home — and gets better at understanding you over time.", qImg: "alexa.jpg", opts: ["AI", "NOT AI"], correctIdx: 0, detail: "CORRECT ANSWER: AI — it uses NLP and machine learning to understand your voice and improve over time." },
                 { q: "This device gives you the correct answer to any maths problem you type — instantly, every time, without ever changing how it works.", qImg: "calculator.jpg", opts: ["AI", "NOT AI"], correctIdx: 1, detail: "CORRECT ANSWER: NOT AI — it follows fixed mathematical rules. No learning, no adaptation, ever." },
@@ -222,27 +201,33 @@
 
     let currentRoundIdx = -1; 
     let currentQIdx = -1;
+    
+    // Auto-Turn Tracking Variables
+    let activeTurn = 0; 
+    let isBonusState = false;
+    let attemptsThisQ = 0;
+
     let timerInterval = null;
     let isTimerRunning = false;
     let isAnswerRevealed = false;
-    let pendingPoints = 0;
 
     function saveTeams() {
         for(let i=0; i<4; i++) {
             let val = document.getElementById(`t${i+1}-input`).value;
             if(val) teams[i].name = val;
             document.getElementById(`sb-name-${i}`).innerText = teams[i].name;
-            document.getElementById(`btn-award-${i}`).innerText = teams[i].name;
         }
         document.getElementById('screen-setup').classList.add('hidden');
         document.getElementById('screen-start').classList.remove('hidden');
         document.getElementById('live-scoreboard').classList.remove('hidden');
     }
 
-    function updateScoreboard() {
-        for(let i=0; i<4; i++) {
-            document.getElementById(`sb-score-${i}`).innerText = teams[i].score;
-        }
+    function updateScoreboard(teamIdx) {
+        let scoreUI = document.getElementById(`sb-score-${teamIdx}`);
+        scoreUI.innerText = teams[teamIdx].score;
+        // Flash animation to show who got points
+        scoreUI.classList.add('flash');
+        setTimeout(() => { scoreUI.classList.remove('flash'); }, 1000);
     }
 
     function hideAll() {
@@ -269,16 +254,24 @@
         const r = rounds[currentRoundIdx];
         const q = r.questions[currentQIdx];
 
-        // Reset UI Timer
+        // --- Core Auto-Turn Logic ---
+        activeTurn = currentQIdx % 4; // Fairly rotates through the 4 teams
+        isBonusState = false;
+        attemptsThisQ = 0;
+
+        // Reset UI
         clearInterval(timerInterval);
         isTimerRunning = false;
         document.getElementById('timer').innerText = "30";
         document.getElementById('timer').classList.remove('timer-warning');
         
-        document.getElementById('active-team').innerText = `Question ${currentQIdx + 1}  (${r.points} PTS)`;
+        let topBar = document.getElementById('active-team');
+        topBar.innerText = `${teams[activeTurn].name}'s Turn (${r.points} PTS)`;
+        topBar.style.background = "var(--bg-gray)";
+        topBar.style.color = "var(--text-dark)";
+        
         document.getElementById('q-text').innerText = q.q;
         
-        // Setup Media & Answers
         document.getElementById('q-image').classList.add('hidden');
         document.getElementById('ans-detail').classList.add('hidden');
         
@@ -292,7 +285,7 @@
             btn.className = 'option';
             btn.id = 'opt-' + index;
             btn.innerText = optText;
-            btn.onclick = () => selectOption(index); // Magic click event!
+            btn.onclick = () => selectOption(index); 
             optsContainer.appendChild(btn);
         });
 
@@ -305,49 +298,86 @@
         document.getElementById('timer-bar-container').classList.remove('hidden');
     }
 
-    function selectOption(clickedIdx) {
-        if(isAnswerRevealed) return; // Only allow one click per question
-        isAnswerRevealed = true;
-        
-        // 1. INSTANTLY STOP THE TIMER
+    function processFailure(clickedIdx) {
         clearInterval(timerInterval);
         isTimerRunning = false;
         document.getElementById('timer-bar-container').classList.add('hidden');
+
+        // Play sounds and mark wrong
+        if(clickedIdx !== null) {
+            document.getElementById('opt-' + clickedIdx).classList.add('wrong');
+            document.getElementById('sfx-wrong').currentTime = 0;
+            document.getElementById('sfx-wrong').play().catch(()=>{});
+        } else {
+            // It was a timeout
+            document.getElementById('sfx-timeup').currentTime = 0;
+            document.getElementById('sfx-timeup').play().catch(()=>{});
+        }
+
+        const r = rounds[currentRoundIdx];
+        const q = r.questions[currentQIdx];
+        attemptsThisQ++;
+
+        // If the question only has 2 options (like AI / NOT AI), don't pass it.
+        // Otherwise, allow passing to the other teams (up to 3 passes).
+        let maxAttempts = (q.opts.length === 2) ? 1 : 4; 
+
+        if (attemptsThisQ < maxAttempts && attemptsThisQ < q.opts.length) {
+            // --- PASS TO NEXT TEAM (BONUS) ---
+            isBonusState = true;
+            activeTurn = (activeTurn + 1) % 4; // Shift to the next team
+            
+            let pts = r.points / 2;
+            let topBar = document.getElementById('active-team');
+            topBar.innerText = `BONUS: ${teams[activeTurn].name}'s Turn (${pts} PTS)`;
+            topBar.style.background = "var(--black)";
+            topBar.style.color = "white";
+            
+            document.getElementById('timer').innerText = "30";
+            document.getElementById('timer').classList.remove('timer-warning');
+            // Wait for Host to press Spacebar to start timer again
+        } else {
+            // --- NO MORE PASSES: REVEAL ANSWER ---
+            isAnswerRevealed = true;
+            document.getElementById('opt-' + q.correctIdx).classList.add('correct');
+            document.getElementById('ans-detail').innerText = q.detail;
+            document.getElementById('ans-detail').classList.remove('hidden');
+        }
+    }
+
+    function selectOption(clickedIdx) {
+        if(isAnswerRevealed) return;
+        
+        // Prevent clicking an option that was already marked wrong
+        const clickedEl = document.getElementById('opt-' + clickedIdx);
+        if(clickedEl.classList.contains('wrong')) return;
 
         const r = rounds[currentRoundIdx];
         const q = r.questions[currentQIdx];
         const isCorrect = (clickedIdx === q.correctIdx);
 
-        // 2. HIGHLIGHT RIGHT/WRONG
         if(isCorrect) {
-            document.getElementById('opt-' + clickedIdx).classList.add('correct');
+            // 1. INSTANTLY STOP TIMER & REVEAL
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            document.getElementById('timer-bar-container').classList.add('hidden');
+            
+            clickedEl.classList.add('correct');
             document.getElementById('sfx-correct').currentTime = 0;
             document.getElementById('sfx-correct').play().catch(()=>{});
-            pendingPoints = r.points; // Full points!
+            
+            // 2. AWARD POINTS AUTOMATICALLY TO WHOEVER'S TURN IT IS
+            let earnedPts = isBonusState ? (r.points / 2) : r.points;
+            teams[activeTurn].score += earnedPts;
+            updateScoreboard(activeTurn);
+
+            isAnswerRevealed = true;
+            document.getElementById('ans-detail').innerText = q.detail;
+            document.getElementById('ans-detail').classList.remove('hidden');
         } else {
-            document.getElementById('opt-' + clickedIdx).classList.add('wrong');
-            document.getElementById('opt-' + q.correctIdx).classList.add('correct'); // Show the real answer
-            document.getElementById('sfx-wrong').currentTime = 0;
-            document.getElementById('sfx-wrong').play().catch(()=>{});
-            pendingPoints = 0; // No points for wrong answer
+            // Answer was wrong - Handle failure and passing logic
+            processFailure(clickedIdx);
         }
-
-        // Show explanation
-        document.getElementById('ans-detail').innerText = q.detail;
-        document.getElementById('ans-detail').classList.remove('hidden');
-
-        // 3. SHOW SCORING OVERLAY
-        setTimeout(() => {
-            document.getElementById('scoring-overlay').classList.remove('hidden');
-        }, 800); // Wait just a moment for dramatic effect before asking who gets points
-    }
-
-    function awardPoints(teamIdx) {
-        if (teamIdx !== -1) {
-            teams[teamIdx].score += pendingPoints;
-            updateScoreboard();
-        }
-        document.getElementById('scoring-overlay').classList.add('hidden');
     }
 
     function startTimer() {
@@ -360,6 +390,8 @@
         
         d.innerText = t;
         d.classList.remove('timer-warning');
+        
+        document.getElementById('timer-bar-container').classList.remove('hidden');
         b.style.transition = "none";
         b.style.width = "100%";
         b.style.backgroundColor = "var(--black)";
@@ -377,22 +409,8 @@
                 b.style.backgroundColor = "var(--danger-red)";
             }
             if (t <= 0) {
-                clearInterval(timerInterval);
-                isTimerRunning = false;
-                d.classList.remove('timer-warning');
-                d.innerText = "TIME UP!";
-                document.getElementById('sfx-timeup').currentTime = 0;
-                document.getElementById('sfx-timeup').play().catch(()=>{});
-                
-                // If time runs out, automatically show the answer and pop up the scoring board
-                isAnswerRevealed = true;
-                const q = rounds[currentRoundIdx].questions[currentQIdx];
-                document.getElementById('opt-' + q.correctIdx).classList.add('correct');
-                document.getElementById('ans-detail').innerText = q.detail;
-                document.getElementById('ans-detail').classList.remove('hidden');
-                
-                pendingPoints = 0;
-                setTimeout(() => { document.getElementById('scoring-overlay').classList.remove('hidden'); }, 1000);
+                // Timer ran out! Treat it as a failure.
+                processFailure(null);
             }
         }, 1000);
     }
@@ -400,16 +418,13 @@
     function showFinalLeaderboard() {
         hideAll();
         document.getElementById('round-indicator').classList.add('hidden');
-        document.getElementById('live-scoreboard').classList.add('hidden'); // Hide bottom bar
+        document.getElementById('live-scoreboard').classList.add('hidden'); 
 
-        // Sort teams from highest to lowest
         let sortedTeams = [...teams].sort((a,b) => b.score - a.score);
         
-        // Show Winner
         document.getElementById('lb-winner-name').innerText = sortedTeams[0].name;
         document.getElementById('lb-winner-score').innerText = sortedTeams[0].score + " PTS";
 
-        // Show Runners Up
         const runnersDiv = document.getElementById('lb-runners-up');
         runnersDiv.innerHTML = '';
         for(let i=1; i<4; i++) {
@@ -428,17 +443,12 @@
 
     // --- MAGIC KEYBOARD CONTROLS ---
     document.addEventListener('keydown', (e) => {
-        // [H] - Toggle Cheat Sheet
         if(e.key.toLowerCase() === 'h') {
             const sheet = document.getElementById('cheat-sheet');
             sheet.style.display = sheet.style.display === 'block' ? 'none' : 'block';
         }
         
-        // [RIGHT ARROW] - Progress Game
         if(e.code === 'ArrowRight') {
-            // Prevent skipping if scoring modal is open
-            if(!document.getElementById('scoring-overlay').classList.contains('hidden')) return;
-
             if (currentRoundIdx === -1) {
                 currentRoundIdx = 0;
                 showIntro();
@@ -457,7 +467,6 @@
             }
         }
         
-        // [SPACEBAR] - Start Timer
         if(e.code === 'Space') {
             if(document.getElementById('screen-setup').classList.contains('hidden')) {
                 e.preventDefault(); 
@@ -465,7 +474,6 @@
             }
         }
     });
-
 </script>
 </body>
 </html>
