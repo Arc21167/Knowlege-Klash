@@ -3,53 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Clash 2026 - Master Single Screen</title>
+    <title>Knowledge Clash 2026 - Ultimate Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-main: #FFFFFF; --bg-subtle: #F9FAFB; --bg-gray: #F3F4F6;
             --text-dark: #111827; --text-muted: #6B7280; --black: #000000;
-            --border-light: #E5E7EB; --success-green: #10B981; --danger-red: #EF4444;
+            --border-light: #E5E7EB; --success-green: #10B981; --danger-red: #EF4444; --gold: #F59E0B;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         .hidden { display: none !important; }
         body, html { width: 100vw; height: 100vh; background-color: var(--bg-main); color: var(--text-dark); overflow: hidden; display: flex; flex-direction: column; }
         
-        /* Sleek Timer Bar */
+        /* Timer Bar */
         #timer-bar-container { width: 100%; height: 0.8vh; background-color: var(--bg-gray); position: fixed; top: 0; left: 0; z-index: 100; }
         #timer-bar { height: 100%; width: 100%; background-color: var(--black); transition: width 1s linear, background-color 0.5s ease; }
         
-        /* Minimalist Header */
+        /* Header */
         header { background-color: var(--bg-main); padding: 2vh 4vw; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); margin-top: 0.8vh; flex-shrink: 0; }
         header h1 { font-size: 3vh; font-weight: 800; letter-spacing: -1px; }
         .round-info { font-size: 1.8vh; font-weight: 600; background: var(--bg-gray); color: var(--text-muted); padding: 0.8vh 2vw; border-radius: 50px; border: 1px solid var(--border-light); }
         .content { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 4vh 6vw; text-align: center; }
 
         .pill-badge { background: var(--bg-gray); color: var(--text-muted); font-size: 2vh; font-weight: 600; padding: 1vh 2vw; border-radius: 50px; display: inline-block; margin-bottom: 2vh; border: 1px solid var(--border-light); }
-        .round-title { font-size: 8vh; font-weight: 900; color: var(--text-dark); margin-bottom: 2vh; margin-top: 15vh; letter-spacing: -2px;}
+        .round-title { font-size: 8vh; font-weight: 900; color: var(--text-dark); margin-bottom: 2vh; margin-top: 5vh; letter-spacing: -2px;}
         .round-subtitle { font-size: 3.5vh; color: var(--text-muted); margin-bottom: 4vh; font-weight: 500;}
 
-        /* Status Bar */
+        /* Setup Screen */
+        .setup-inputs { display: flex; flex-direction: column; gap: 2vh; width: 40vw; margin-top: 3vh; }
+        .setup-inputs input { padding: 2vh; font-size: 2.5vh; border: 2px solid var(--border-light); border-radius: 12px; font-weight: 600; text-align: center; }
+        .start-btn { margin-top: 4vh; padding: 2vh 4vw; background: var(--black); color: white; font-size: 2.5vh; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .start-btn:hover { transform: scale(1.05); }
+
+        /* Live Scoreboard Footer */
+        #live-scoreboard { width: 100%; height: 8vh; background: var(--bg-subtle); border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; left: 0; z-index: 50; }
+        .team-score-card { font-size: 2.2vh; font-weight: 700; display: flex; gap: 1vw; align-items: center; }
+        .score-val { background: var(--black); color: white; padding: 0.5vh 1.5vw; border-radius: 8px; font-weight: 900; }
+
+        /* Game Status */
         .game-status-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 3vh; flex-shrink: 0; }
         .active-team-badge { font-size: 2.5vh; font-weight: 700; background: var(--bg-gray); color: var(--text-dark); padding: 1.5vh 3vw; border-radius: 50px; border: 1px solid var(--border-light); }
         .timer-badge { font-size: 4vh; font-weight: 800; background: var(--black); color: white; padding: 1vh 3vw; border-radius: 50px; min-width: 12vw; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);}
         .timer-warning { background: var(--danger-red) !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* Typography & Options */
-        .question-text { font-size: 4.5vh; font-weight: 800; margin-bottom: 3vh; color: var(--text-dark); line-height: 1.3; letter-spacing: -1px; }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh; margin-top: 2vh; width: 100%; max-width: 1400px; flex-shrink: 0;}
-        .option { background: var(--bg-main); border: 1px solid var(--border-light); padding: 2.5vh; font-size: 2.5vh; font-weight: 600; border-radius: 16px; text-align: left; color: var(--text-dark); transition: 0.3s; }
-        .option.correct { background: var(--success-green); color: white; border-color: var(--success-green); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);}
-        .answer-explanation { margin-top: 2vh; font-size: 2.5vh; color: var(--text-dark); background: var(--bg-subtle); font-weight: 500; padding: 3vh; border-radius: 16px; border: 1px solid var(--border-light); line-height: 1.5;}
+        /* Options */
+        .question-text { font-size: 4vh; font-weight: 800; margin-bottom: 3vh; color: var(--text-dark); line-height: 1.3; letter-spacing: -1px; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh; margin-top: 1vh; width: 100%; max-width: 1400px; flex-shrink: 0;}
+        .option { background: var(--bg-main); border: 2px solid var(--border-light); padding: 2vh; font-size: 2.2vh; font-weight: 600; border-radius: 16px; text-align: left; color: var(--text-dark); cursor: pointer; transition: 0.2s; }
+        .option:hover { border-color: var(--black); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .option.correct { background: var(--success-green); color: white; border-color: var(--success-green); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);}
+        .option.wrong { background: var(--danger-red); color: white; border-color: var(--danger-red); opacity: 0.8; }
+        .answer-explanation { margin-top: 2vh; font-size: 2.2vh; color: var(--text-dark); background: var(--bg-subtle); font-weight: 500; padding: 2vh; border-radius: 12px; border: 1px solid var(--border-light); line-height: 1.5; max-width: 1200px;}
         
-        /* Images */
-        .q-card-img { max-height: 30vh; border-radius: 16px; margin-bottom: 2vh; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: block; margin-left: auto; margin-right: auto;}
-        .ai-card-img { max-height: 30vh; margin: 2vh auto; display: block; animation: fadeUp 0.5s ease; drop-shadow: 0 10px 25px rgba(0,0,0,0.1);}
-        @keyframes fadeUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .q-card-img { max-height: 25vh; border-radius: 12px; margin-bottom: 2vh; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: block; margin-left: auto; margin-right: auto;}
+        
+        /* Scoring Overlay Panel */
+        #scoring-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 200; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .scoring-box { background: white; padding: 5vh 4vw; border-radius: 24px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .scoring-box h2 { font-size: 3.5vh; font-weight: 800; margin-bottom: 3vh; }
+        .team-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh; }
+        .team-award-btn { padding: 2vh; font-size: 2vh; font-weight: 700; border: 2px solid var(--border-light); border-radius: 12px; background: var(--bg-subtle); cursor: pointer; transition: 0.2s; }
+        .team-award-btn:hover { background: var(--black); color: white; border-color: var(--black); }
+        .nobody-btn { grid-column: span 2; background: var(--bg-gray); border-color: var(--border-light); color: var(--text-muted); }
 
-        /* AV Control Cheat Sheet */
-        #cheat-sheet { position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; font-size: 14px; font-weight: normal; z-index: 1000; display: none; text-align: left; line-height: 1.8;}
+        /* Leaderboard Animations */
+        .rank-row { display: flex; justify-content: space-between; align-items: center; width: 50vw; background: var(--bg-subtle); padding: 2vh 3vw; border-radius: 16px; margin-bottom: 1.5vh; font-size: 3vh; font-weight: 700; border: 1px solid var(--border-light); }
+        .winner-box { background: var(--black); color: white; padding: 4vh 6vw; border-radius: 24px; width: 60vw; margin-bottom: 4vh; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: winnerPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .winner-box::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%); transform: rotate(30deg); animation: shine 3s infinite; }
+        @keyframes winnerPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes shine { 0% { left: -50%; } 100% { left: 150%; } }
+
+        /* Cheat Sheet */
+        #cheat-sheet { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 10px; font-size: 12px; z-index: 1000; display: none; text-align: left; line-height: 1.8;}
     </style>
 </head>
 <body>
@@ -64,7 +90,19 @@
         <div id="round-indicator" class="round-info hidden">Round 1</div>
     </header>
 
-    <div id="screen-start" class="content">
+    <div id="screen-setup" class="content">
+        <div class="pill-badge">AV Desk Setup</div>
+        <h2 class="round-title" style="margin-top: 2vh;">Enter Competing Teams</h2>
+        <div class="setup-inputs">
+            <input type="text" id="t1-input" placeholder="Team 1 Name" value="Team Alpha">
+            <input type="text" id="t2-input" placeholder="Team 2 Name" value="Team Beta">
+            <input type="text" id="t3-input" placeholder="Team 3 Name" value="Team Gamma">
+            <input type="text" id="t4-input" placeholder="Team 4 Name" value="Team Delta">
+        </div>
+        <button class="start-btn" onclick="saveTeams()">Lock Teams & Start Show</button>
+    </div>
+
+    <div id="screen-start" class="content hidden">
         <div class="pill-badge">ASTRO League 2026</div>
         <h2 class="round-title">Ready to Begin</h2>
         <p class="round-subtitle">Press RIGHT ARROW (→) to load Round 1</p>
@@ -85,21 +123,45 @@
         <img id="q-image" class="q-card-img hidden" src="" alt="Question Image">
         
         <div id="options" class="options-grid hidden">
-            <div id="opt-0" class="option">A</div>
-            <div id="opt-1" class="option">B</div>
-            <div id="opt-2" class="option">C</div>
-            <div id="opt-3" class="option">D</div>
-        </div>
+            </div>
 
-        <img id="ans-image" class="ai-card-img hidden" src="" alt="Answer">
         <div id="ans-detail" class="answer-explanation hidden">Explanation</div>
     </div>
 
+    <div id="screen-leaderboard" class="content hidden">
+        <div class="pill-badge" style="background: var(--gold); color: white; border: none;">Final Results</div>
+        <div class="winner-box">
+            <div style="font-size: 3vh; color: rgba(255,255,255,0.7); font-weight: 600; margin-bottom: 1vh;">CHAMPION</div>
+            <div id="lb-winner-name" style="font-size: 8vh; font-weight: 900; letter-spacing: -2px;">WINNER NAME</div>
+            <div id="lb-winner-score" style="font-size: 4vh; font-weight: 700; color: var(--gold); margin-top: 1vh;">0 PTS</div>
+        </div>
+        <div id="lb-runners-up"></div>
+    </div>
+
+    <div id="scoring-overlay" class="hidden">
+        <div class="scoring-box">
+            <h2>Who answered?</h2>
+            <div class="team-btn-grid">
+                <button class="team-award-btn" id="btn-award-0" onclick="awardPoints(0)"></button>
+                <button class="team-award-btn" id="btn-award-1" onclick="awardPoints(1)"></button>
+                <button class="team-award-btn" id="btn-award-2" onclick="awardPoints(2)"></button>
+                <button class="team-award-btn" id="btn-award-3" onclick="awardPoints(3)"></button>
+                <button class="team-award-btn nobody-btn" onclick="awardPoints(-1)">Nobody / Time Up (0 pts)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="live-scoreboard" class="hidden">
+        <div class="team-score-card"><span id="sb-name-0">T1</span> <span class="score-val" id="sb-score-0">0</span></div>
+        <div class="team-score-card"><span id="sb-name-1">T2</span> <span class="score-val" id="sb-score-1">0</span></div>
+        <div class="team-score-card"><span id="sb-name-2">T3</span> <span class="score-val" id="sb-score-2">0</span></div>
+        <div class="team-score-card"><span id="sb-name-3">T4</span> <span class="score-val" id="sb-score-3">0</span></div>
+    </div>
+
     <div id="cheat-sheet">
-        <b>[→] Right Arrow:</b> Next Screen / Next Question<br>
-        <b>[SPACE]:</b> Start / Reset Timer<br>
-        <b>[ENTER]:</b> Reveal Answer (Plays Ding!)<br>
-        <b>[ B ]:</b> Trigger Bonus Question Mode<br>
+        <b>[→] Right Arrow:</b> Next Screen / Question<br>
+        <b>[SPACE]:</b> Start Timer<br>
+        <b>[MOUSE CLICK]:</b> Click an option on screen to reveal answer & stop timer.<br>
         <b>[ H ]:</b> Toggle this Help Menu
     </div>
 
@@ -122,18 +184,18 @@
             ]
         },
         {
-            title: "ROUND 2", subtitle: "AI OR NOT? (15 PTS)", points: 15, type: "aINotAi",
+            title: "ROUND 2", subtitle: "AI OR NOT? (15 PTS)", points: 15, type: "mcq", // Treat as MCQ for clicking
             questions: [
-                { q: "This device listens for your voice, answers questions, plays music and controls your smart home — and gets better at understanding you over time.", qImg: "alexa.jpg", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it uses NLP and machine learning to understand your voice and improve over time." },
-                { q: "This device gives you the correct answer to any maths problem you type — instantly, every time, without ever changing how it works.", qImg: "calculator.jpg", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — it follows fixed mathematical rules. No learning, no adaptation, ever." },
-                { q: "This system scans your face as you walk through, compares it to your passport photo, and decides in seconds whether to let you through.", qImg: "airport.jpg", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it uses computer vision and machine learning to match and verify faces in real time." },
-                { q: "This device was set to ring at 6AM. It has rung at exactly 6AM every day for 10 years. It has never changed.", qImg: "clock.jpg", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — it follows a fixed mechanical timer. No sensing, no processing, no learning." },
-                { q: "This screen shows you ten films you never searched for — but they are all things you end up loving. The system chose them based on everything you watched before.", qImg: "netflix.jpg", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it uses machine learning and pattern recognition to personalise recommendations." },
-                { q: "A hospital system has processed five years of patient records. It now flags patients as 'high risk' before they show any symptoms — and it was never given a list of rules for what 'high risk' means.", qImg: "", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it learned risk patterns from data without being explicitly programmed with rules." },
-                { q: "Every time you walk into a supermarket, the doors slide open. They have done this for every person for 15 years.", qImg: "", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — the doors respond to a simple motion or pressure sensor. No learning involved." },
-                { q: "A language learning app notices that you always get a specific grammar rule wrong. Without anyone telling it to, it starts showing you more exercises on that rule until your score improves.", qImg: "", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it is detecting your weak points and adapting your learning path automatically." },
-                { q: "A microwave has four buttons — 1 minute, 2 minutes, 5 minutes, and defrost. It has had these same four options since it was manufactured.", qImg: "", ansImg: "Not AI card.png", detail: "CORRECT ANSWER: NOT AI — it has four fixed pre-programmed options and will never change them." },
-                { q: "You scroll past a video without watching it. You watch the next one for 3 minutes. The app immediately stops showing you videos like the first and shows you more like the second.", qImg: "", ansImg: "AI Card.png", detail: "CORRECT ANSWER: AI — it is learning your preferences in real time and adjusting your feed accordingly." }
+                { q: "This device listens for your voice, answers questions, plays music and controls your smart home — and gets better at understanding you over time.", qImg: "alexa.jpg", opts: ["AI", "NOT AI"], correctIdx: 0, detail: "CORRECT ANSWER: AI — it uses NLP and machine learning to understand your voice and improve over time." },
+                { q: "This device gives you the correct answer to any maths problem you type — instantly, every time, without ever changing how it works.", qImg: "calculator.jpg", opts: ["AI", "NOT AI"], correctIdx: 1, detail: "CORRECT ANSWER: NOT AI — it follows fixed mathematical rules. No learning, no adaptation, ever." },
+                { q: "This system scans your face as you walk through, compares it to your passport photo, and decides in seconds whether to let you through.", qImg: "airport.jpg", opts: ["AI", "NOT AI"], correctIdx: 0, detail: "CORRECT ANSWER: AI — it uses computer vision and machine learning to match and verify faces in real time." },
+                { q: "This device was set to ring at 6AM. It has rung at exactly 6AM every day for 10 years. It has never changed.", qImg: "clock.jpg", opts: ["AI", "NOT AI"], correctIdx: 1, detail: "CORRECT ANSWER: NOT AI — it follows a fixed mechanical timer. No sensing, no processing, no learning." },
+                { q: "This screen shows you ten films you never searched for — but they are all things you end up loving. The system chose them based on everything you watched before.", qImg: "netflix.jpg", opts: ["AI", "NOT AI"], correctIdx: 0, detail: "CORRECT ANSWER: AI — it uses machine learning and pattern recognition to personalise recommendations." },
+                { q: "A hospital system has processed five years of patient records. It now flags patients as 'high risk' before they show any symptoms — and it was never given a list of rules for what 'high risk' means.", qImg: "", opts: ["AI", "NOT AI"], correctIdx: 0, detail: "CORRECT ANSWER: AI — it learned risk patterns from data without being explicitly programmed with rules." },
+                { q: "Every time you walk into a supermarket, the doors slide open. They have done this for every person for 15 years.", qImg: "", opts: ["AI", "NOT AI"], correctIdx: 1, detail: "CORRECT ANSWER: NOT AI — the doors respond to a simple motion or pressure sensor. No learning involved." },
+                { q: "A language learning app notices that you always get a specific grammar rule wrong. Without anyone telling it to, it starts showing you more exercises on that rule until your score improves.", qImg: "", opts: ["AI", "NOT AI"], correctIdx: 0, detail: "CORRECT ANSWER: AI — it is detecting your weak points and adapting your learning path automatically." },
+                { q: "A microwave has four buttons — 1 minute, 2 minutes, 5 minutes, and defrost. It has had these same four options since it was manufactured.", qImg: "", opts: ["AI", "NOT AI"], correctIdx: 1, detail: "CORRECT ANSWER: NOT AI — it has four fixed pre-programmed options and will never change them." },
+                { q: "You scroll past a video without watching it. You watch the next one for 3 minutes. The app immediately stops showing you videos like the first and shows you more like the second.", qImg: "", opts: ["AI", "NOT AI"], correctIdx: 0, detail: "CORRECT ANSWER: AI — it is learning your preferences in real time and adjusting your feed accordingly." }
             ]
         },
         {
@@ -153,13 +215,38 @@
         }
     ];
 
+    let teams = [
+        {name: "Team 1", score: 0}, {name: "Team 2", score: 0},
+        {name: "Team 3", score: 0}, {name: "Team 4", score: 0}
+    ];
+
     let currentRoundIdx = -1; 
     let currentQIdx = -1;
     let timerInterval = null;
     let isTimerRunning = false;
+    let isAnswerRevealed = false;
+    let pendingPoints = 0;
+
+    function saveTeams() {
+        for(let i=0; i<4; i++) {
+            let val = document.getElementById(`t${i+1}-input`).value;
+            if(val) teams[i].name = val;
+            document.getElementById(`sb-name-${i}`).innerText = teams[i].name;
+            document.getElementById(`btn-award-${i}`).innerText = teams[i].name;
+        }
+        document.getElementById('screen-setup').classList.add('hidden');
+        document.getElementById('screen-start').classList.remove('hidden');
+        document.getElementById('live-scoreboard').classList.remove('hidden');
+    }
+
+    function updateScoreboard() {
+        for(let i=0; i<4; i++) {
+            document.getElementById(`sb-score-${i}`).innerText = teams[i].score;
+        }
+    }
 
     function hideAll() {
-        ['screen-start', 'screen-intro', 'screen-question'].forEach(id => {
+        ['screen-start', 'screen-intro', 'screen-question', 'screen-leaderboard'].forEach(id => {
             document.getElementById(id).classList.add('hidden');
         });
         document.getElementById('timer-bar-container').classList.add('hidden');
@@ -176,42 +263,40 @@
 
     function showQuestion() {
         hideAll();
-        // Failsafe in case they hit right arrow too fast
+        isAnswerRevealed = false;
         if(currentRoundIdx === -1) currentRoundIdx = 0; 
         
         const r = rounds[currentRoundIdx];
         const q = r.questions[currentQIdx];
 
-        // Reset UI Timer State
+        // Reset UI Timer
         clearInterval(timerInterval);
         isTimerRunning = false;
         document.getElementById('timer').innerText = "30";
         document.getElementById('timer').classList.remove('timer-warning');
         
         document.getElementById('active-team').innerText = `Question ${currentQIdx + 1}  (${r.points} PTS)`;
-        document.getElementById('active-team').style.background = "var(--bg-gray)";
-        document.getElementById('active-team').style.color = "var(--text-dark)";
-        
         document.getElementById('q-text').innerText = q.q;
         
-        // Reset Media & Answers
+        // Setup Media & Answers
         document.getElementById('q-image').classList.add('hidden');
-        document.getElementById('ans-image').classList.add('hidden');
         document.getElementById('ans-detail').classList.add('hidden');
-        document.getElementById('options').classList.add('hidden');
         
-        for(let i=0; i<4; i++) {
-            let opt = document.getElementById('opt-'+i);
-            if(opt) opt.classList.remove('correct');
-        }
+        // Generate Clickable Options
+        const optsContainer = document.getElementById('options');
+        optsContainer.innerHTML = '';
+        optsContainer.classList.remove('hidden');
+        
+        q.opts.forEach((optText, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'option';
+            btn.id = 'opt-' + index;
+            btn.innerText = optText;
+            btn.onclick = () => selectOption(index); // Magic click event!
+            optsContainer.appendChild(btn);
+        });
 
-        // Show Options OR Image based on round
-        if(r.type === "mcq") {
-            document.getElementById('options').classList.remove('hidden');
-            for(let i=0; i<4; i++) {
-                document.getElementById('opt-'+i).innerText = q.opts[i];
-            }
-        } else if (q.qImg) {
+        if (q.qImg) {
             document.getElementById('q-image').src = q.qImg;
             document.getElementById('q-image').classList.remove('hidden');
         }
@@ -220,53 +305,53 @@
         document.getElementById('timer-bar-container').classList.remove('hidden');
     }
 
-    function revealAnswer() {
-        if(currentRoundIdx === -1 || currentQIdx === -1) return; // Prevent breaking on intro
+    function selectOption(clickedIdx) {
+        if(isAnswerRevealed) return; // Only allow one click per question
+        isAnswerRevealed = true;
         
-        const q = rounds[currentRoundIdx].questions[currentQIdx];
-        const r = rounds[currentRoundIdx];
-        
+        // 1. INSTANTLY STOP THE TIMER
         clearInterval(timerInterval);
         isTimerRunning = false;
         document.getElementById('timer-bar-container').classList.add('hidden');
 
-        // Play Sound
-        document.getElementById('sfx-correct').currentTime = 0;
-        document.getElementById('sfx-correct').play().catch(()=>{});
+        const r = rounds[currentRoundIdx];
+        const q = r.questions[currentQIdx];
+        const isCorrect = (clickedIdx === q.correctIdx);
 
-        if(r.type === "mcq") {
-            document.getElementById('opt-' + q.correctIdx).classList.add('correct');
+        // 2. HIGHLIGHT RIGHT/WRONG
+        if(isCorrect) {
+            document.getElementById('opt-' + clickedIdx).classList.add('correct');
+            document.getElementById('sfx-correct').currentTime = 0;
+            document.getElementById('sfx-correct').play().catch(()=>{});
+            pendingPoints = r.points; // Full points!
         } else {
-            document.getElementById('ans-image').src = q.ansImg;
-            document.getElementById('ans-image').classList.remove('hidden');
+            document.getElementById('opt-' + clickedIdx).classList.add('wrong');
+            document.getElementById('opt-' + q.correctIdx).classList.add('correct'); // Show the real answer
+            document.getElementById('sfx-wrong').currentTime = 0;
+            document.getElementById('sfx-wrong').play().catch(()=>{});
+            pendingPoints = 0; // No points for wrong answer
         }
+
+        // Show explanation
         document.getElementById('ans-detail').innerText = q.detail;
         document.getElementById('ans-detail').classList.remove('hidden');
+
+        // 3. SHOW SCORING OVERLAY
+        setTimeout(() => {
+            document.getElementById('scoring-overlay').classList.remove('hidden');
+        }, 800); // Wait just a moment for dramatic effect before asking who gets points
     }
 
-    function triggerBonus() {
-        if(currentRoundIdx === -1 || currentQIdx === -1) return; // Prevent breaking on intro
-        
-        const topBar = document.getElementById('active-team');
-        topBar.innerText = `BONUS QUESTION!`;
-        topBar.style.background = "var(--black)";
-        topBar.style.color = "white";
-        
-        document.getElementById('timer').innerText = "BONUS";
-        document.getElementById('timer').classList.remove('timer-warning');
-        document.getElementById('timer-bar-container').classList.add('hidden');
-        
-        clearInterval(timerInterval);
-        isTimerRunning = false;
-        
-        document.getElementById('sfx-wrong').currentTime = 0;
-        document.getElementById('sfx-wrong').play().catch(()=>{});
+    function awardPoints(teamIdx) {
+        if (teamIdx !== -1) {
+            teams[teamIdx].score += pendingPoints;
+            updateScoreboard();
+        }
+        document.getElementById('scoring-overlay').classList.add('hidden');
     }
 
     function startTimer() {
-        // Prevent timer from running on the start screen or intro screens
-        if (currentRoundIdx === -1 || currentQIdx === -1) return; 
-        if (isTimerRunning) return; 
+        if (currentRoundIdx === -1 || currentQIdx === -1 || isAnswerRevealed || isTimerRunning) return; 
         
         isTimerRunning = true;
         let t = 30;
@@ -275,12 +360,10 @@
         
         d.innerText = t;
         d.classList.remove('timer-warning');
-        
-        // Reset bar width instantly before counting down
         b.style.transition = "none";
         b.style.width = "100%";
         b.style.backgroundColor = "var(--black)";
-        void b.offsetWidth; // Force CSS repaint
+        void b.offsetWidth;
         b.style.transition = "width 1s linear, background-color 0.5s ease";
 
         timerInterval = setInterval(() => {
@@ -300,8 +383,47 @@
                 d.innerText = "TIME UP!";
                 document.getElementById('sfx-timeup').currentTime = 0;
                 document.getElementById('sfx-timeup').play().catch(()=>{});
+                
+                // If time runs out, automatically show the answer and pop up the scoring board
+                isAnswerRevealed = true;
+                const q = rounds[currentRoundIdx].questions[currentQIdx];
+                document.getElementById('opt-' + q.correctIdx).classList.add('correct');
+                document.getElementById('ans-detail').innerText = q.detail;
+                document.getElementById('ans-detail').classList.remove('hidden');
+                
+                pendingPoints = 0;
+                setTimeout(() => { document.getElementById('scoring-overlay').classList.remove('hidden'); }, 1000);
             }
         }, 1000);
+    }
+
+    function showFinalLeaderboard() {
+        hideAll();
+        document.getElementById('round-indicator').classList.add('hidden');
+        document.getElementById('live-scoreboard').classList.add('hidden'); // Hide bottom bar
+
+        // Sort teams from highest to lowest
+        let sortedTeams = [...teams].sort((a,b) => b.score - a.score);
+        
+        // Show Winner
+        document.getElementById('lb-winner-name').innerText = sortedTeams[0].name;
+        document.getElementById('lb-winner-score').innerText = sortedTeams[0].score + " PTS";
+
+        // Show Runners Up
+        const runnersDiv = document.getElementById('lb-runners-up');
+        runnersDiv.innerHTML = '';
+        for(let i=1; i<4; i++) {
+            let suf = i===1 ? "2ND PLACE" : i===2 ? "3RD PLACE" : "4TH PLACE";
+            runnersDiv.innerHTML += `
+                <div class="rank-row">
+                    <span style="color: var(--text-muted); font-size: 2vh;">${suf}</span>
+                    <span>${sortedTeams[i].name}</span>
+                    <span style="color: var(--gold);">${sortedTeams[i].score} PTS</span>
+                </div>
+            `;
+        }
+
+        document.getElementById('screen-leaderboard').classList.remove('hidden');
     }
 
     // --- MAGIC KEYBOARD CONTROLS ---
@@ -312,45 +434,35 @@
             sheet.style.display = sheet.style.display === 'block' ? 'none' : 'block';
         }
         
-        // [RIGHT ARROW] - Progress Game Linearly
+        // [RIGHT ARROW] - Progress Game
         if(e.code === 'ArrowRight') {
+            // Prevent skipping if scoring modal is open
+            if(!document.getElementById('scoring-overlay').classList.contains('hidden')) return;
+
             if (currentRoundIdx === -1) {
-                // Start to Round 1 Intro
                 currentRoundIdx = 0;
                 showIntro();
             } else if (currentQIdx === -1) {
-                // Round Intro to Q1
                 currentQIdx = 0;
                 showQuestion();
             } else if (currentQIdx < rounds[currentRoundIdx].questions.length - 1) {
-                // Next Question in Round
                 currentQIdx++;
                 showQuestion();
             } else if (currentRoundIdx < rounds.length - 1) {
-                // Next Round Intro
                 currentRoundIdx++;
                 currentQIdx = -1;
                 showIntro();
             } else {
-                alert("End of Game!");
+                showFinalLeaderboard();
             }
         }
         
         // [SPACEBAR] - Start Timer
         if(e.code === 'Space') {
-            e.preventDefault(); // Stop page scrolling
-            startTimer();
-        }
-
-        // [ENTER] - Reveal Answer
-        if(e.code === 'Enter') {
-            e.preventDefault();
-            revealAnswer();
-        }
-
-        // [B] - Trigger Bonus Status
-        if(e.key.toLowerCase() === 'b') {
-            triggerBonus();
+            if(document.getElementById('screen-setup').classList.contains('hidden')) {
+                e.preventDefault(); 
+                startTimer();
+            }
         }
     });
 
